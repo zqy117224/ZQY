@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #17211f;
+  background: #fbfffe;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(180deg, rgba(234, 246, 248, 0.9) 0%, rgba(251, 255, 254, 1) 320px),
+    #fbfffe;
+  color: #17211f;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+.field-label {
+  @apply text-sm font-semibold text-ink;
+}
+
+.field-help {
+  @apply text-sm text-stone-600;
+}
+
+.input-box {
+  @apply w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-leaf focus:ring-2 focus:ring-leaf/20;
+}
+
+.card {
+  @apply rounded-lg border border-stone-200 bg-white p-5 shadow-soft;
+}
