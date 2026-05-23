@@ -16,7 +16,7 @@ const studyAustraliaLivingCostSource: SourceMeta = {
   lastUpdated: checkedDate,
   scope: "International student financial capacity planning",
   note:
-    "Study Australia states international student visa applicants must show at least AUD 29,710. Actual living costs vary by city, lifestyle, rent, family situation, and inflation."
+    "Australian student visa financial-capacity baseline, not guaranteed actual living cost. Actual living costs vary by city, lifestyle, rent, family situation, and inflation."
 };
 
 const scenarioAssumptionSource: SourceMeta = {
@@ -47,6 +47,9 @@ type SalaryReference = {
   jsaOccupationProxy: string;
   jsaMedianWeeklyEarnings: number;
   annualisedJsaGross: number;
+  laterCareerProxy?: string;
+  laterCareerMedianWeeklyEarnings?: number;
+  laterCareerAnnualisedGross?: number;
   qiltNote?: string;
   note?: string;
 };
@@ -179,6 +182,81 @@ const salaryReferences: Record<string, SalaryReference> = {
     jsaOccupationProxy: "Solicitors",
     jsaMedianWeeklyEarnings: 2_070,
     annualisedJsaGross: 107_640
+  },
+  biotechnology: {
+    qiltField: "Science and mathematics",
+    qiltFullTimeEmployment: 0.636,
+    qiltGraduateMedianSalary: 72_400,
+    jsaOccupationProxy: "Life Scientists",
+    jsaMedianWeeklyEarnings: 1_544,
+    annualisedJsaGross: 80_288
+  },
+  "biomedical-science": {
+    qiltField: "Health services and support",
+    qiltFullTimeEmployment: 0.754,
+    qiltGraduateMedianSalary: 74_900,
+    jsaOccupationProxy: "Medical Laboratory Scientists",
+    jsaMedianWeeklyEarnings: 2_056,
+    annualisedJsaGross: 106_912
+  },
+  "biomedical-engineering": {
+    qiltField: "Engineering",
+    qiltFullTimeEmployment: 0.855,
+    qiltGraduateMedianSalary: 80_000,
+    jsaOccupationProxy: "Other Engineering Professionals, includes Biomedical Engineers",
+    jsaMedianWeeklyEarnings: 2_649,
+    annualisedJsaGross: 137_748
+  },
+  medicine: {
+    qiltField: "Medicine",
+    qiltFullTimeEmployment: 0.904,
+    qiltGraduateMedianSalary: 86_800,
+    jsaOccupationProxy: "General Practitioners and Resident Medical Officers",
+    jsaMedianWeeklyEarnings: 2_446,
+    annualisedJsaGross: 127_192,
+    laterCareerProxy: "Specialist Physicians",
+    laterCareerMedianWeeklyEarnings: 3_620,
+    laterCareerAnnualisedGross: 188_240
+  },
+  dentistry: {
+    qiltField: "Dentistry",
+    qiltFullTimeEmployment: 0.856,
+    qiltGraduateMedianSalary: 103_300,
+    jsaOccupationProxy: "Dental Practitioners",
+    jsaMedianWeeklyEarnings: 3_232,
+    annualisedJsaGross: 168_064
+  },
+  pharmacy: {
+    qiltField: "Pharmacy",
+    qiltFullTimeEmployment: 0.914,
+    qiltGraduateMedianSalary: 59_500,
+    jsaOccupationProxy: "Pharmacists",
+    jsaMedianWeeklyEarnings: 1_956,
+    annualisedJsaGross: 101_712
+  },
+  physiotherapy: {
+    qiltField: "Rehabilitation",
+    qiltFullTimeEmployment: 0.949,
+    qiltGraduateMedianSalary: 75_000,
+    jsaOccupationProxy: "Physiotherapists",
+    jsaMedianWeeklyEarnings: 1_888,
+    annualisedJsaGross: 98_176
+  },
+  "occupational-therapy": {
+    qiltField: "Rehabilitation",
+    qiltFullTimeEmployment: 0.949,
+    qiltGraduateMedianSalary: 75_000,
+    jsaOccupationProxy: "Occupational Therapists",
+    jsaMedianWeeklyEarnings: 1_913,
+    annualisedJsaGross: 99_476
+  },
+  psychology: {
+    qiltField: "Psychology",
+    qiltFullTimeEmployment: 0.655,
+    qiltGraduateMedianSalary: 75_100,
+    jsaOccupationProxy: "Psychologists and Psychotherapists",
+    jsaMedianWeeklyEarnings: 2_204,
+    annualisedJsaGross: 114_608
   }
 };
 
@@ -244,11 +322,27 @@ const courseSources = {
   )
 };
 
+function representativeTuitionSource(sourceName: string): SourceMeta {
+  return {
+    sourceName,
+    sourceDate: "2026",
+    lastUpdated: checkedDate,
+    scope: "Representative international tuition model input",
+    note:
+      "Representative model estimate only, not a universal fee. Exact tuition differs by university, course structure, campus, student type, annual indexation, and official offer."
+  };
+}
+
 const courseDefaults: Record<
   string,
   {
     studyYears: SourcedNumber;
     tuitionPerYear: SourcedNumber;
+    professionalPathwayYears?: SourcedNumber;
+    professionalPathwayLabel?: string;
+    yearsToGeneralRegistration?: SourcedNumber;
+    registrationRequired?: boolean;
+    trainingNote?: string;
   }
 > = {
   "computer-science": {
@@ -286,7 +380,88 @@ const courseDefaults: Record<
   law: {
     studyYears: sourceNumber(4.25, "years", courseSources.law),
     tuitionPerYear: sourceNumber(50_200, "AUD/year", courseSources.law)
-  }
+  },
+  biotechnology: healthPathwayDefaults(
+    3,
+    "Often needs honours, master's, PhD, lab experience, or industry experience for stronger outcomes.",
+    {
+      tuitionPerYearAud: 45_600,
+      tuitionSourceLabel: "Representative Monash Bachelor of Science 2026 international fee"
+    }
+  ),
+  "biomedical-science": healthPathwayDefaults(
+    3,
+    "Often used as a pre-med, research, lab, or postgraduate pathway. Do not present it as a guaranteed clinical job pathway.",
+    {
+      tuitionPerYearAud: 49_800,
+      tuitionSourceLabel: "Representative Monash Biomedical Science 2026 international fee estimate"
+    }
+  ),
+  "biomedical-engineering": healthPathwayDefaults(
+    4,
+    "Engineering-style pathway connected to health technology. Outcomes depend on accreditation, technical portfolio, and the health-tech market.",
+    {
+      tuitionPerYearAud: 59_600,
+      tuitionSourceLabel: "Representative Monash Engineering 2026 international fee estimate"
+    }
+  ),
+  medicine: healthPathwayDefaults(
+    5,
+    "Direct-entry medicine is modelled as 5 years of university study plus about 1 year PGY1/internship before general registration. Full specialist practice can take 10-15+ years.",
+    {
+      yearsToGeneralRegistration: 6,
+      registrationRequired: true,
+      tuitionPerYearAud: 101_600,
+      tuitionSourceLabel: "Representative Monash direct-entry Medicine 2026 international fee estimate"
+    }
+  ),
+  dentistry: healthPathwayDefaults(
+    5,
+    "This model assumes high-school direct-entry dentistry. Registration is required before practice.",
+    {
+      registrationRequired: true,
+      tuitionPerYearAud: 94_856,
+      tuitionSourceLabel: "Representative UQ Dental Science 2026 international fee"
+    }
+  ),
+  pharmacy: healthPathwayDefaults(
+    5,
+    "Model as about 5 years to registered pharmacist pathway.",
+    {
+      registrationRequired: true,
+      tuitionPerYearAud: 60_100,
+      tuitionSourceLabel: "Representative Monash Pharmacy pathway 2026 international fee estimate"
+    }
+  ),
+  physiotherapy: healthPathwayDefaults(
+    4,
+    "Four-year professional health degree with direct clinical pathway.",
+    {
+      registrationRequired: true,
+      tuitionPerYearAud: 64_200,
+      tuitionSourceLabel: "Representative Monash Physiotherapy 2026 international fee estimate"
+    }
+  ),
+  "occupational-therapy": healthPathwayDefaults(
+    4,
+    "Four-year professional health degree with strong employability but moderate income ceiling.",
+    {
+      registrationRequired: true,
+      tuitionPerYearAud: 58_056,
+      tuitionSourceLabel: "Representative UQ Occupational Therapy 2026 international fee"
+    }
+  ),
+  psychology: healthPathwayDefaults(
+    3,
+    "Undergraduate psychology alone is not the full professional pathway; professional registration usually requires further accredited study and supervised practice.",
+    {
+      professionalPathwayYears: 6,
+      professionalPathwayLabel: "6+ years",
+      registrationRequired: true,
+      tuitionPerYearAud: 45_600,
+      tuitionSourceLabel: "Representative science/psychology undergraduate tuition estimate"
+    }
+  )
 };
 
 export const otherAnnualCostsAfterGraduationDefault: SourcedNumber = assumptionNumber(
@@ -331,12 +506,17 @@ export const roiProfiles: PathwayFinancialProfile[] = majors.map((major) => {
   return {
     pathwayId: major.id,
     studyYears: defaults.studyYears,
+    professionalPathwayYears: defaults.professionalPathwayYears,
+    professionalPathwayLabel: defaults.professionalPathwayLabel,
+    yearsToGeneralRegistration: defaults.yearsToGeneralRegistration,
+    registrationRequired: defaults.registrationRequired,
+    trainingNote: defaults.trainingNote,
     tuitionPerYear: defaults.tuitionPerYear,
     livingCostPerYearWhileStudying: sourceNumber(
       29_710,
       "AUD/year",
       studyAustraliaLivingCostSource,
-      "Used as a source-backed planning baseline for living costs while studying."
+      "Australian student visa financial-capacity baseline, not guaranteed actual living cost."
     ),
     otherStudyCosts: assumptionNumber(
       0,
@@ -361,7 +541,7 @@ export const roiProfiles: PathwayFinancialProfile[] = majors.map((major) => {
       29_710,
       "AUD/year",
       studyAustraliaLivingCostSource,
-      "Used as an editable baseline after graduation. It is not graduate-specific and may be too low for some cities or family situations."
+      "Australian student visa financial-capacity baseline, not guaranteed actual living cost. Used here as an editable post-study living-cost baseline."
     ),
     fallbackIncomeIfNotEmployed: assumptionNumber(
       0,
@@ -433,6 +613,58 @@ function commerceDefaults() {
   };
 }
 
+function healthPathwayDefaults(
+  studyYears: number,
+  trainingNote: string,
+  options: {
+    professionalPathwayYears?: number;
+    professionalPathwayLabel?: string;
+    yearsToGeneralRegistration?: number;
+    registrationRequired?: boolean;
+    tuitionPerYearAud?: number;
+    tuitionSourceLabel?: string;
+  } = {}
+) {
+  return {
+    studyYears: assumptionNumber(
+      studyYears,
+      "years",
+      `High-school direct-entry university study duration assumption for this MVP. ${trainingNote}`
+    ),
+    professionalPathwayYears:
+      options.professionalPathwayYears === undefined
+        ? undefined
+        : assumptionNumber(
+            options.professionalPathwayYears,
+            "years",
+            `Professional pathway duration assumption. ${trainingNote}`
+          ),
+    professionalPathwayLabel: options.professionalPathwayLabel,
+    yearsToGeneralRegistration:
+      options.yearsToGeneralRegistration === undefined
+        ? undefined
+        : assumptionNumber(
+            options.yearsToGeneralRegistration,
+            "years",
+            `Approximate time to general registration assumption. ${trainingNote}`
+          ),
+    registrationRequired: options.registrationRequired,
+    trainingNote,
+    tuitionPerYear:
+      options.tuitionPerYearAud === undefined || options.tuitionSourceLabel === undefined
+        ? missingNumber(
+            "AUD/year",
+            "Payback unavailable — tuition assumption needed. Add a high-school direct-entry course tuition value before using payback."
+          )
+        : sourceNumber(
+            options.tuitionPerYearAud,
+            "AUD/year",
+            representativeTuitionSource(options.tuitionSourceLabel),
+            "Representative international tuition model estimate, not a universal fee. Verify against the official university course page or offer."
+          )
+  };
+}
+
 function missingCourseDefaults() {
   return {
     studyYears: missingNumber("years", "Course duration is not sourced yet."),
@@ -496,7 +728,7 @@ function salaryDefaultForMajor(major: Major): SourcedNumber {
     value: salaryValue,
     unit: "AUD/year",
     quality: "source-backed",
-    dataLabel: hasSpecificGraduateSalary ? "specific graduate data" : "broad field estimate",
+    dataLabel: hasSpecificGraduateSalary ? "specific graduate data" : "broad field graduate outcome",
     source:
       hasSpecificGraduateSalary
         ? miningEngineeringSalarySource
@@ -521,8 +753,14 @@ function laterCareerSalaryForMajor(major: Major): SourcedNumber {
   }
 
   const hasSpecificYear5Salary = reference.specificGraduateYear5Salary !== undefined;
-  const source = hasSpecificYear5Salary ? miningEngineeringSalarySource : occupationSourceForMajor(major);
-  const value = reference.specificGraduateYear5Salary ?? reference.annualisedJsaGross;
+  const hasLaterCareerOccupation = reference.laterCareerAnnualisedGross !== undefined;
+  const source = hasSpecificYear5Salary
+    ? miningEngineeringSalarySource
+    : occupationSourceForMajor(major, hasLaterCareerOccupation);
+  const value =
+    reference.specificGraduateYear5Salary ??
+    reference.laterCareerAnnualisedGross ??
+    reference.annualisedJsaGross;
 
   return {
     value,
@@ -532,7 +770,9 @@ function laterCareerSalaryForMajor(major: Major): SourcedNumber {
     source,
     note: hasSpecificYear5Salary
       ? `${major.name} specific Year 5 graduate salary. Later-career scenario reference, not graduate starting salary.`
-      : `JSA occupation median earnings for ${reference.jsaOccupationProxy}, annualised from AUD ${reference.jsaMedianWeeklyEarnings.toLocaleString("en-AU")}/week. This is before tax and is not a graduate starting salary.${reference.note ? ` ${reference.note}` : ""}`
+      : hasLaterCareerOccupation
+        ? `JSA later-career occupation proxy: ${reference.laterCareerProxy}, annualised from AUD ${reference.laterCareerMedianWeeklyEarnings?.toLocaleString("en-AU")}/week to AUD ${reference.laterCareerAnnualisedGross?.toLocaleString("en-AU")}. This is before tax and is not a graduate starting salary.`
+        : `JSA occupation median earnings for ${reference.jsaOccupationProxy}, annualised from AUD ${reference.jsaMedianWeeklyEarnings.toLocaleString("en-AU")}/week. This is before tax and is not a graduate starting salary.${reference.note ? ` ${reference.note}` : ""}`
   };
 }
 
@@ -565,13 +805,13 @@ function employmentDefaultForMajor(major: Major): SourcedNumber {
     value: reference.qiltFullTimeEmployment,
     unit: "decimal",
     quality: "source-backed",
-    dataLabel: "broad field estimate",
+    dataLabel: "broad field graduate outcome",
     source: source ? convertMajorSource(source, `QILT ${reference.qiltField} full-time employment`) : undefined,
     note: `${reference.qiltField}: QILT domestic undergraduate full-time employment, surveyed about 4-6 months after completion. This is not international-student-specific.`
   };
 }
 
-function occupationSourceForMajor(major: Major): SourceMeta | undefined {
+function occupationSourceForMajor(major: Major, useLaterCareerProxy = false): SourceMeta | undefined {
   const reference = salaryReferences[major.id];
   const existingSource = major.occupationOutcomes.sources[0];
 
@@ -579,12 +819,22 @@ function occupationSourceForMajor(major: Major): SourceMeta | undefined {
     return existingSource ? convertMajorSource(existingSource, "JSA occupation median earnings") : undefined;
   }
 
+  const proxy = useLaterCareerProxy && reference.laterCareerProxy
+    ? reference.laterCareerProxy
+    : reference.jsaOccupationProxy;
+  const weekly = useLaterCareerProxy && reference.laterCareerMedianWeeklyEarnings
+    ? reference.laterCareerMedianWeeklyEarnings
+    : reference.jsaMedianWeeklyEarnings;
+  const annual = useLaterCareerProxy && reference.laterCareerAnnualisedGross
+    ? reference.laterCareerAnnualisedGross
+    : reference.annualisedJsaGross;
+
   return {
-    sourceName: `Jobs and Skills Australia: ${reference.jsaOccupationProxy}`,
+    sourceName: `Jobs and Skills Australia: ${proxy}`,
     sourceUrl: existingSource?.url,
     lastUpdated: checkedDate,
     scope: "Occupation median weekly earnings before tax",
-    note: `Supplied JSA proxy for this pathway. Median weekly earnings: AUD ${reference.jsaMedianWeeklyEarnings.toLocaleString("en-AU")}; annualised gross: AUD ${reference.annualisedJsaGross.toLocaleString("en-AU")}.`
+    note: `Supplied JSA proxy for this pathway. Median weekly earnings: AUD ${weekly.toLocaleString("en-AU")}; annualised gross: AUD ${annual.toLocaleString("en-AU")}.`
   };
 }
 

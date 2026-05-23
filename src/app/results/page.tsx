@@ -21,7 +21,8 @@ import {
   calculateRoi,
   dataLabelClasses,
   formatCurrency,
-  formatPayback
+  formatPayback,
+  formatPercent
 } from "@/lib/roi";
 
 export default function ResultsPage({ searchParams }: { searchParams: SearchParams }) {
@@ -144,10 +145,13 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
   const roiProfile = getRoiProfile(major.id);
   const roiCalculation = calculateRoi(buildInitialAssumptions(roiProfile));
   const hasSalaryDefault = roiProfile.startingSalary.value !== null;
+  const hasTuitionDefault = roiProfile.tuitionPerYear.value !== null;
   const evidence = [
     major.graduateOutcomes.salaryRange,
     major.graduateOutcomes.employmentOutlook,
-    `${firstEntry.university}: ${firstEntry.atarValue} (${firstEntry.atarType})`
+    firstEntry
+      ? `${firstEntry.university}: ${firstEntry.atarValue} (${firstEntry.atarType})`
+      : "Course entry rows have not been added for this pathway yet; verify prerequisites on official university pages."
   ];
 
   return (
@@ -244,7 +248,42 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
           </Link>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <RoiMiniMetric label="Total study cost" value={formatCurrency(roiCalculation.totalStudyCost)} />
+          <RoiMiniMetric
+            label="Study years"
+            value={
+              roiProfile.studyYears.value !== null
+                ? `${roiProfile.studyYears.value.toLocaleString("en-AU")} years`
+                : "Duration assumption needed"
+            }
+          />
+          <RoiMiniMetric
+            label="Graduate salary"
+            value={
+              roiProfile.startingSalary.value !== null
+                ? formatCurrency(roiProfile.startingSalary.value)
+                : "Salary assumption needed"
+            }
+          />
+          <RoiMiniMetric
+            label="Occupation median"
+            value={
+              roiProfile.occupationMedianSalary.value !== null
+                ? formatCurrency(roiProfile.occupationMedianSalary.value)
+                : "Occupation salary needed"
+            }
+          />
+          <RoiMiniMetric
+            label="Employment rate"
+            value={
+              roiProfile.employmentProbability.value !== null
+                ? formatPercent(roiProfile.employmentProbability.value)
+                : "Employment assumption needed"
+            }
+          />
+          <RoiMiniMetric
+            label="University study cost"
+            value={hasTuitionDefault ? formatCurrency(roiCalculation.totalStudyCost) : "Tuition assumption needed"}
+          />
           <RoiMiniMetric
             label="After-tax income"
             value={hasSalaryDefault ? formatCurrency(roiCalculation.afterTaxIncome) : "Salary assumption needed"}
@@ -254,9 +293,11 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
             value={hasSalaryDefault ? formatCurrency(roiCalculation.annualFreeCashFlow) : "Salary assumption needed"}
           />
           <RoiMiniMetric
-            label="Risk-adjusted payback"
+            label="ROI status"
             value={
-              hasSalaryDefault
+              !hasTuitionDefault
+                ? "Payback unavailable — tuition assumption needed."
+                : hasSalaryDefault
                 ? formatPayback(
                     roiCalculation.riskAdjustedPaybackPeriodYears,
                     "Not recovered after risk adjustment."
@@ -285,6 +326,11 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
           ) : null}
           Later-career reference: {roiProfile.laterCareerSalary.note}
         </p>
+        {roiProfile.trainingNote ? (
+          <p className="mt-2 rounded-md border border-coral/30 bg-coral/10 p-3 text-xs leading-5 text-stone-700">
+            Registration/training warning: {roiProfile.trainingNote} This version models high-school direct-entry pathways only, not graduate-entry pathways.
+          </p>
+        ) : null}
       </div>
 
       <div className="mt-5 rounded-lg border border-stone-200 bg-white p-4">

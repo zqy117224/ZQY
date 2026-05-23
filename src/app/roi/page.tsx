@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AssumptionNotice } from "@/components/roi/AssumptionNotice";
 import { RoiInputPanel } from "@/components/roi/RoiInputPanel";
 import { RoiResultCard } from "@/components/roi/RoiResultCard";
@@ -38,7 +38,13 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
   const calculation = useMemo(() => calculateRoi(assumptions), [assumptions]);
   const scenarios = useMemo(() => buildScenarioResults(assumptions, profile), [assumptions, profile]);
   const salaryAssumptionNeeded = profile.startingSalary.value === null && assumptions.startingSalary <= 0;
+  const tuitionAssumptionNeeded = profile.tuitionPerYear.value === null && assumptions.tuitionPerYear <= 0;
   const salaryAudit = useMemo(() => auditRoiSalaryDefaults(), []);
+
+  useEffect(() => {
+    setPathwayId(initialPathwayId);
+    setAssumptions(buildInitialAssumptions(getRoiProfile(initialPathwayId)));
+  }, [initialPathwayId]);
 
   function handlePathwayChange(nextPathwayId: string) {
     setPathwayId(nextPathwayId);
@@ -95,6 +101,30 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
           representative Monash course fee or duration data where sourced, and clearly labelled
           assumptions or missing states where no reliable pathway-specific salary default is available.
         </p>
+        {profile.trainingNote ? (
+          <div className="mt-4 rounded-lg border border-coral/30 bg-coral/10 p-4 text-sm leading-6 text-stone-700">
+            <p className="font-semibold text-ink">Training and registration warning</p>
+            <p className="mt-1">{profile.trainingNote}</p>
+            <p className="mt-1">
+              This version calculates high-school direct-entry pathways only. Graduate-entry pathways are not modelled.
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+              <TrainingFact label="University study cost period" value={`${profile.studyYears.value ?? "?"} years`} />
+              <TrainingFact
+                label={
+                  profile.professionalPathwayYears
+                    ? "Professional pathway"
+                    : "Time to general registration"
+                }
+                value={formatProfessionalTime(profile)}
+              />
+              <TrainingFact
+                label="Registration"
+                value={profile.registrationRequired ? "Required for practice" : "Check pathway requirements"}
+              />
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr]">
@@ -111,8 +141,9 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
           <div className="grid gap-4 sm:grid-cols-2">
             <RoiResultCard
               title="Total study cost"
-              value={formatCurrency(calculation.totalStudyCost)}
-              note="Tuition, study-period living costs, other study costs, and opportunity cost."
+              value={tuitionAssumptionNeeded ? "Tuition assumption needed" : formatCurrency(calculation.totalStudyCost)}
+              note="University study cost only: tuition, study-period living costs, other study costs, and opportunity cost."
+              tone={tuitionAssumptionNeeded ? "warning" : "default"}
             />
             <RoiResultCard
               title="Estimated after-tax income"
@@ -135,23 +166,27 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
               value={
                 salaryAssumptionNeeded
                   ? "Salary assumption needed"
+                  : tuitionAssumptionNeeded
+                    ? "Payback unavailable — tuition assumption needed."
                   : formatPayback(calculation.paybackPeriodYears, "Not recovered under current assumptions.")
               }
               note="Total study cost divided by annual free cash flow."
-              tone={salaryAssumptionNeeded || calculation.paybackPeriodYears === null ? "warning" : "default"}
+              tone={salaryAssumptionNeeded || tuitionAssumptionNeeded || calculation.paybackPeriodYears === null ? "warning" : "default"}
             />
             <RoiResultCard
               title="Risk-adjusted payback"
               value={
                 salaryAssumptionNeeded
                   ? "Salary assumption needed"
+                  : tuitionAssumptionNeeded
+                    ? "Payback unavailable — tuition assumption needed."
                   : formatPayback(
                       calculation.riskAdjustedPaybackPeriodYears,
                       "Not recovered after risk adjustment."
                     )
               }
               note={`Uses ${formatPercent(assumptions.employmentProbability)} employment probability and fallback income.`}
-              tone={salaryAssumptionNeeded || calculation.riskAdjustedPaybackPeriodYears === null ? "warning" : "default"}
+              tone={salaryAssumptionNeeded || tuitionAssumptionNeeded || calculation.riskAdjustedPaybackPeriodYears === null ? "warning" : "default"}
             />
             <RoiResultCard
               title="10-year free cash flow"
@@ -174,12 +209,17 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
       </div>
 
       <section className="mt-10">
-          {salaryAssumptionNeeded ? (
+        {salaryAssumptionNeeded || tuitionAssumptionNeeded ? (
           <div className="rounded-lg border border-coral/30 bg-coral/10 p-5 text-sm leading-6 text-stone-700">
-            <h2 className="text-lg font-semibold text-ink">Scenario comparison needs a salary input</h2>
+            <h2 className="text-lg font-semibold text-ink">Scenario comparison needs more inputs</h2>
             <p className="mt-2">
-              This pathway does not have a pathway-specific salary default yet. Enter a salary in the
-              income panel to calculate conservative, base, and optimistic scenarios.
+              {salaryAssumptionNeeded
+                ? "Enter a salary in the income panel. "
+                : ""}
+              {tuitionAssumptionNeeded
+                ? "Payback unavailable — tuition assumption needed. Enter annual tuition before using study cost, payback, and scenario outputs. "
+                : ""}
+              This version models high-school direct-entry pathways only, not graduate-entry pathways.
             </p>
           </div>
         ) : (
@@ -196,6 +236,31 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
       </section>
     </div>
   );
+}
+
+function TrainingFact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-md bg-white p-3">
+      <p className="text-xs font-semibold uppercase text-stone-500">{label}</p>
+      <p className="mt-1 font-semibold text-ink">{value}</p>
+    </div>
+  );
+}
+
+function formatProfessionalTime(profile: ReturnType<typeof getRoiProfile>) {
+  if (profile.professionalPathwayLabel) {
+    return profile.professionalPathwayLabel;
+  }
+
+  if (profile.professionalPathwayYears?.value) {
+    return `${profile.professionalPathwayYears.value} years`;
+  }
+
+  if (profile.yearsToGeneralRegistration?.value) {
+    return `${profile.yearsToGeneralRegistration.value} years`;
+  }
+
+  return "Not separately modelled";
 }
 
 function SalaryAuditPanel({ audit }: { audit: ReturnType<typeof auditRoiSalaryDefaults> }) {

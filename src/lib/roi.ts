@@ -32,7 +32,7 @@ export const qualityClasses: Record<DataQuality, string> = {
 export const dataLabelClasses: Record<DataLabel, string> = {
   "specific occupation data": "border-leaf/30 bg-leaf/10 text-leaf",
   "specific graduate data": "border-ink/20 bg-skywash text-ink",
-  "broad field estimate": "border-coral/30 bg-coral/10 text-coral"
+  "broad field graduate outcome": "border-coral/30 bg-coral/10 text-coral"
 };
 
 export function buildInitialAssumptions(profile: PathwayFinancialProfile): RoiAssumptions {

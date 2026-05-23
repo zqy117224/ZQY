@@ -207,6 +207,60 @@ const sources = {
     url: "https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations/2713-solicitors",
     lastUpdated: checkedDate,
     note: "Occupation profile using ABS/JSA data: 106,100 employed, median full-time earnings $2,070/week, average full-time hours 46/week."
+  },
+  jsaLifeScientists: {
+    label: "Jobs and Skills Australia: Life Scientists",
+    url: "https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations/2345-life-scientists",
+    lastUpdated: checkedDate,
+    note: "Occupation profile using ABS/JSA data supplied for this project: median full-time earnings $1,544/week."
+  },
+  jsaMedicalLaboratoryScientists: {
+    label: "Jobs and Skills Australia: Medical Laboratory Scientists",
+    url: "https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations/2346-medical-laboratory-scientists",
+    lastUpdated: checkedDate,
+    note: "Occupation profile using ABS/JSA data supplied for this project: median full-time earnings $2,056/week."
+  },
+  jsaOtherEngineering: {
+    label: "Jobs and Skills Australia: Other Engineering Professionals",
+    url: "https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations/2339-other-engineering-professionals",
+    lastUpdated: checkedDate,
+    note: "Occupation profile using ABS/JSA data supplied for this project: median full-time earnings $2,649/week. Used as a biomedical engineering proxy."
+  },
+  jsaDoctors: {
+    label: "Jobs and Skills Australia: General Practitioners and Resident Medical Officers",
+    url: "https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations/2531-general-practitioners-and-resident-medical-officers",
+    lastUpdated: checkedDate,
+    note: "Occupation profile using ABS/JSA data supplied for this project: median full-time earnings $2,446/week."
+  },
+  jsaDental: {
+    label: "Jobs and Skills Australia: Dental Practitioners",
+    url: "https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations/2523-dental-practitioners",
+    lastUpdated: checkedDate,
+    note: "Occupation profile using ABS/JSA data supplied for this project: median full-time earnings $3,232/week."
+  },
+  jsaPharmacists: {
+    label: "Jobs and Skills Australia: Pharmacists",
+    url: "https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations/2515-pharmacists",
+    lastUpdated: checkedDate,
+    note: "Occupation profile using ABS/JSA data supplied for this project: median full-time earnings $1,956/week."
+  },
+  jsaPhysiotherapists: {
+    label: "Jobs and Skills Australia: Physiotherapists",
+    url: "https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations/2525-physiotherapists",
+    lastUpdated: checkedDate,
+    note: "Occupation profile using ABS/JSA data supplied for this project: median full-time earnings $1,888/week."
+  },
+  jsaOccupationalTherapists: {
+    label: "Jobs and Skills Australia: Occupational Therapists",
+    url: "https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations/2524-occupational-therapists",
+    lastUpdated: checkedDate,
+    note: "Occupation profile using ABS/JSA data supplied for this project: median full-time earnings $1,913/week."
+  },
+  jsaPsychologists: {
+    label: "Jobs and Skills Australia: Psychologists and Psychotherapists",
+    url: "https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations/2723-psychologists-and-psychotherapists",
+    lastUpdated: checkedDate,
+    note: "Occupation profile using ABS/JSA data supplied for this project: median full-time earnings $2,204/week."
   }
 };
 
@@ -276,6 +330,18 @@ const qiltTeaching =
   "QILT 2024 Teacher education: 86.8% full-time employment, 92.5% overall employment, $78,800 median full-time salary.";
 const qiltLaw =
   "QILT 2024 Law and paralegal studies: 79.3% full-time employment, 88.5% overall employment, $76,000 median full-time salary.";
+const qiltHealthSupport =
+  "QILT 2024 Health services and support: 75.4% full-time employment, $74,900 median full-time salary for domestic undergraduates.";
+const qiltMedicine =
+  "QILT 2024 Medicine: 90.4% full-time employment, $86,800 median full-time salary for domestic undergraduates.";
+const qiltDentistry =
+  "QILT 2024 Dentistry: 85.6% full-time employment, $103,300 median full-time salary for domestic undergraduates.";
+const qiltPharmacy =
+  "QILT 2024 Pharmacy: 91.4% full-time employment, $59,500 median full-time salary for domestic undergraduates.";
+const qiltRehabilitation =
+  "QILT 2024 Rehabilitation: 94.9% full-time employment, $75,000 median full-time salary for domestic undergraduates.";
+const qiltPsychology =
+  "QILT 2024 Psychology: 65.5% full-time employment, $75,100 median full-time salary for domestic undergraduates.";
 
 const go8 = {
   monashComputerScience: {
@@ -798,6 +864,241 @@ export const majors: Major[] = [
       interestFit: { maths: 5, physics: 5, chemistry: 1, coding: 3, business: 1 }
     },
     overallNotes: "Best for students with deep curiosity about physical systems who are open to further study or adjacent technical careers."
+  }),
+  makeMajor({
+    id: "biotechnology",
+    name: "Biotechnology / Life Science",
+    summary: "Biology pathway focused on life science, biotechnology, laboratory methods, research, and applied biological systems.",
+    go8Entries: [],
+    graduateRoles: ["Laboratory assistant", "Research assistant", "Biotechnology graduate"],
+    salaryRange: "$72,400 median annual full-time salary for domestic undergraduates in QILT Science and mathematics, 2024.",
+    employmentOutlook: qiltScience,
+    graduateNotes: "QILT is broad Science and mathematics data, not biotechnology-specific or international-student-specific.",
+    graduateSources: [sources.qilt],
+    occupations: ["Life scientist", "Research assistant", "Biotechnology technician"],
+    workStyle: "Research-oriented biology work involving experiments, laboratory records, sample handling, data interpretation, and technical writing.",
+    workingHours: "Jobs and Skills Australia occupation data supplied for this project reports median full-time earnings of $1,544/week for Life Scientists.",
+    jobEnvironment: "Research laboratories, universities, biotechnology companies, diagnostics, government science, agriculture, and pharmaceutical-adjacent settings.",
+    typicalTasks: "Preparing experiments, collecting biological samples, analysing results, maintaining lab records, and supporting research or product development.",
+    tradeOffs: "Research-oriented biology pathway with lower early-career certainty than regulated health degrees; usually stronger with postgraduate study or industry experience.",
+    riskNotes: "Early-career roles can be competitive and may require honours, postgraduate study, internships, or industry lab experience.",
+    occupationSources: [sources.jsaLifeScientists],
+    scoringProfile: {
+      salaryPotential: 2, workLifeBalance: 4, codingIntensity: 2, mathsPhysicsFit: 3,
+      competitionLevel: 4, riskLevel: 4, remoteWorkFit: 1, stabilityLevel: 3,
+      flexibilityLevel: 3, peopleFacingLevel: 2, technicalLevel: 4,
+      interestFit: { maths: 2, physics: 1, chemistry: 5, coding: 2, business: 1 }
+    },
+    overallNotes: "Research-oriented biology pathway with lower early-career certainty than regulated health degrees; usually stronger with postgraduate study or industry experience."
+  }),
+  makeMajor({
+    id: "biomedical-science",
+    name: "Biomedical Science / Medical Laboratory Science",
+    summary: "Health science pathway focused on human biology, pathology, laboratory diagnostics, disease processes, and clinical science support.",
+    go8Entries: [],
+    graduateRoles: ["Medical laboratory assistant", "Biomedical science graduate", "Health science research assistant"],
+    salaryRange: "$74,900 median annual full-time salary for domestic undergraduates in QILT Health services and support, 2024.",
+    employmentOutlook: qiltHealthSupport,
+    graduateNotes: "QILT Health services and support is broad field data; laboratory career outcomes depend heavily on accreditation and training route.",
+    graduateSources: [sources.qilt],
+    occupations: ["Medical laboratory scientist", "Pathology laboratory worker", "Biomedical researcher"],
+    workStyle: "Laboratory and health-science work involving testing, sample handling, quality systems, technical reporting, and diagnostic support.",
+    workingHours: "Jobs and Skills Australia occupation data supplied for this project reports median full-time earnings of $2,056/week for Medical Laboratory Scientists.",
+    jobEnvironment: "Hospitals, pathology providers, diagnostic laboratories, research institutes, biotechnology companies, and public health settings.",
+    typicalTasks: "Analysing specimens, running tests, checking quality controls, recording results, and supporting clinical or research teams.",
+    tradeOffs: "More practical than general biology if it leads toward laboratory, diagnostic or health-science roles, but career outcomes depend heavily on accreditation and further training.",
+    riskNotes: "Students should check accreditation, placement expectations, postgraduate options, and whether the degree alone qualifies them for target lab roles.",
+    occupationSources: [sources.jsaMedicalLaboratoryScientists],
+    scoringProfile: {
+      salaryPotential: 3, workLifeBalance: 4, codingIntensity: 1, mathsPhysicsFit: 2,
+      competitionLevel: 3, riskLevel: 3, remoteWorkFit: 1, stabilityLevel: 4,
+      flexibilityLevel: 3, peopleFacingLevel: 3, technicalLevel: 4,
+      interestFit: { maths: 2, physics: 1, chemistry: 5, coding: 1, business: 1 }
+    },
+    overallNotes: "More practical than general biology if it leads toward laboratory, diagnostic or health-science roles, but career outcomes depend heavily on accreditation and further training."
+  }),
+  makeMajor({
+    id: "biomedical-engineering",
+    name: "Biomedical Engineering",
+    summary: "Engineering pathway connecting mechanics, electronics, computing, medical devices, biomechanics, and health technology.",
+    go8Entries: [go8.monashEngineering],
+    graduateRoles: ["Biomedical engineering graduate", "Medical device engineer", "Clinical technology assistant"],
+    salaryRange: "$80,000 median annual full-time salary for domestic undergraduates in QILT Engineering, 2024.",
+    employmentOutlook: qiltEngineering,
+    graduateNotes: "QILT Engineering is broad field data; biomedical engineering outcomes depend on local device, hospital, research, and regulatory opportunities.",
+    graduateSources: [sources.qilt],
+    occupations: ["Biomedical engineer", "Medical device engineer", "Clinical engineer"],
+    workStyle: "Technical engineering work connected to design, testing, quality systems, devices, biomechanics, software, and health-sector stakeholders.",
+    workingHours: "Jobs and Skills Australia occupation data supplied for this project reports median full-time earnings of $2,649/week for Other Engineering Professionals, including Biomedical Engineers.",
+    jobEnvironment: "Medical device companies, hospitals, rehabilitation technology, research laboratories, regulators, consulting, and engineering teams.",
+    typicalTasks: "Designing or testing health technologies, reviewing device performance, documenting quality requirements, and solving engineering problems in clinical contexts.",
+    tradeOffs: "A technical engineering pathway connected to health technology, but the Australian biomedical engineering market is smaller than mainstream engineering fields.",
+    riskNotes: "Students may need strong engineering fundamentals and should compare biomedical engineering with electrical, mechanical, software, and health science routes.",
+    occupationSources: [sources.jsaOtherEngineering],
+    scoringProfile: {
+      salaryPotential: 4, workLifeBalance: 3, codingIntensity: 3, mathsPhysicsFit: 5,
+      competitionLevel: 4, riskLevel: 4, remoteWorkFit: 1, stabilityLevel: 3,
+      flexibilityLevel: 4, peopleFacingLevel: 3, technicalLevel: 5,
+      interestFit: { maths: 5, physics: 4, chemistry: 3, coding: 3, business: 1 }
+    },
+    overallNotes: "A technical engineering pathway connected to health technology, but the Australian biomedical engineering market is smaller than mainstream engineering fields."
+  }),
+  makeMajor({
+    id: "medicine",
+    name: "Medicine / Doctor",
+    summary: "Professional health pathway focused on diagnosis, treatment, clinical reasoning, patient care, hospital systems, and long regulated training.",
+    go8Entries: [],
+    graduateRoles: ["Intern doctor", "Resident medical officer", "Medical graduate"],
+    salaryRange: "$86,800 median annual full-time salary for domestic undergraduates in QILT Medicine, 2024.",
+    employmentOutlook: qiltMedicine,
+    graduateNotes: "Medicine has strong QILT employment outcomes, but training is long and governed by entry, placement, registration, internship, and specialty pathway constraints.",
+    graduateSources: [sources.qilt],
+    occupations: ["General practitioner", "Resident medical officer", "Specialist physician pathway"],
+    workStyle: "Highly responsible clinical work involving patient assessment, diagnosis, treatment planning, documentation, communication, and multidisciplinary teamwork.",
+    workingHours: "Jobs and Skills Australia occupation data supplied for this project reports median full-time earnings of $2,446/week for General Practitioners and Resident Medical Officers; Specialist Physicians are used as a later-career proxy in ROI.",
+    jobEnvironment: "Hospitals, clinics, emergency departments, general practice, regional health services, specialist settings, and public or private health systems.",
+    typicalTasks: "Taking histories, examining patients, ordering tests, interpreting results, prescribing treatment, documenting care, and coordinating with health teams.",
+    tradeOffs: "Very strong employment pathway, but long training time, high entry difficulty, registration requirements and delayed earnings make ROI more complex than the salary alone suggests.",
+    riskNotes: "Entry is highly competitive and the path includes long study, placement, internship, registration, exams, stress, and delayed full earnings.",
+    occupationSources: [sources.jsaDoctors],
+    scoringProfile: {
+      salaryPotential: 5, workLifeBalance: 1, codingIntensity: 1, mathsPhysicsFit: 3,
+      competitionLevel: 5, riskLevel: 5, remoteWorkFit: 2, stabilityLevel: 5,
+      flexibilityLevel: 4, peopleFacingLevel: 5, technicalLevel: 5,
+      interestFit: { maths: 3, physics: 2, chemistry: 5, coding: 1, business: 1 }
+    },
+    overallNotes: "Very strong employment pathway, but long training time, high entry difficulty, registration requirements and delayed earnings make ROI more complex than the salary alone suggests."
+  }),
+  makeMajor({
+    id: "dentistry",
+    name: "Dentistry",
+    summary: "Professional health pathway focused on oral health, clinical procedures, diagnostics, patient communication, and regulated dental practice.",
+    go8Entries: [],
+    graduateRoles: ["Dental graduate", "Dentist pathway", "Oral health clinician pathway"],
+    salaryRange: "$103,300 median annual full-time salary for domestic undergraduates in QILT Dentistry, 2024.",
+    employmentOutlook: qiltDentistry,
+    graduateNotes: "Dentistry has high QILT salary evidence, but entry, clinical training, equipment costs, and registration requirements are major planning factors.",
+    graduateSources: [sources.qilt],
+    occupations: ["Dental practitioner", "Dentist", "Dental specialist pathway"],
+    workStyle: "Hands-on clinical work involving oral examination, procedures, treatment planning, patient education, and practice management.",
+    workingHours: "Jobs and Skills Australia occupation data supplied for this project reports median full-time earnings of $3,232/week for Dental Practitioners.",
+    jobEnvironment: "Dental clinics, hospitals, community health, regional services, specialist practices, and private practice settings.",
+    typicalTasks: "Diagnosing oral health conditions, performing procedures, interpreting imaging, planning treatment, educating patients, and maintaining clinical records.",
+    tradeOffs: "High salary and strong professional pathway, but entry barriers, clinical training cost and registration requirements are major constraints.",
+    riskNotes: "Clinical training costs, manual dexterity, patient-facing work, registration requirements, and private-practice economics should be checked early.",
+    occupationSources: [sources.jsaDental],
+    scoringProfile: {
+      salaryPotential: 5, workLifeBalance: 3, codingIntensity: 1, mathsPhysicsFit: 2,
+      competitionLevel: 5, riskLevel: 4, remoteWorkFit: 1, stabilityLevel: 5,
+      flexibilityLevel: 4, peopleFacingLevel: 5, technicalLevel: 5,
+      interestFit: { maths: 2, physics: 1, chemistry: 5, coding: 1, business: 2 }
+    },
+    overallNotes: "High salary and strong professional pathway, but entry barriers, clinical training cost and registration requirements are major constraints."
+  }),
+  makeMajor({
+    id: "pharmacy",
+    name: "Pharmacy",
+    summary: "Health pathway focused on medicines, pharmacology, patient advice, safety, dispensing, hospital pharmacy, and clinical medication management.",
+    go8Entries: [],
+    graduateRoles: ["Intern pharmacist", "Community pharmacy graduate", "Hospital pharmacy graduate"],
+    salaryRange: "$59,500 median annual full-time salary for domestic undergraduates in QILT Pharmacy, 2024.",
+    employmentOutlook: qiltPharmacy,
+    graduateNotes: "Pharmacy has high QILT employment but lower graduate salary than many students expect; outcomes vary by setting and career direction.",
+    graduateSources: [sources.qilt],
+    occupations: ["Pharmacist", "Hospital pharmacist", "Industrial pharmacy pathway"],
+    workStyle: "Medicine-focused work involving dispensing, clinical advice, safety checks, patient communication, stock systems, and health-team collaboration.",
+    workingHours: "Jobs and Skills Australia occupation data supplied for this project reports median full-time earnings of $1,956/week for Pharmacists.",
+    jobEnvironment: "Community pharmacies, hospitals, aged care, pharmaceutical companies, regulatory settings, and clinical health teams.",
+    typicalTasks: "Reviewing prescriptions, advising patients, checking medication safety, managing dispensing systems, and supporting clinical medication decisions.",
+    tradeOffs: "High employment rate but weaker graduate salary than many students expect; ROI depends on whether the pathway leads to hospital, industrial, ownership or advanced clinical roles.",
+    riskNotes: "Registration, internship, weekend work, retail exposure, and ownership or hospital pathway competition can affect outcomes.",
+    occupationSources: [sources.jsaPharmacists],
+    scoringProfile: {
+      salaryPotential: 3, workLifeBalance: 3, codingIntensity: 1, mathsPhysicsFit: 2,
+      competitionLevel: 3, riskLevel: 3, remoteWorkFit: 1, stabilityLevel: 5,
+      flexibilityLevel: 3, peopleFacingLevel: 5, technicalLevel: 4,
+      interestFit: { maths: 2, physics: 1, chemistry: 5, coding: 1, business: 2 }
+    },
+    overallNotes: "High employment rate but weaker graduate salary than many students expect; ROI depends on whether the pathway leads to hospital, industrial, ownership or advanced clinical roles."
+  }),
+  makeMajor({
+    id: "physiotherapy",
+    name: "Physiotherapy / Rehabilitation",
+    summary: "Clinical rehabilitation pathway focused on movement, physical function, injury recovery, exercise prescription, and patient education.",
+    go8Entries: [],
+    graduateRoles: ["Graduate physiotherapist", "Rehabilitation assistant", "Sports clinic graduate"],
+    salaryRange: "$75,000 median annual full-time salary for domestic undergraduates in QILT Rehabilitation, 2024.",
+    employmentOutlook: qiltRehabilitation,
+    graduateNotes: "Rehabilitation QILT outcomes are strong, but course accreditation, placements, registration, and clinical setting matter.",
+    graduateSources: [sources.qilt],
+    occupations: ["Physiotherapist", "Rehabilitation clinician", "Sports physiotherapy pathway"],
+    workStyle: "Hands-on clinical work involving assessment, treatment planning, exercise prescription, patient coaching, and rehabilitation progress tracking.",
+    workingHours: "Jobs and Skills Australia occupation data supplied for this project reports median full-time earnings of $1,888/week for Physiotherapists.",
+    jobEnvironment: "Hospitals, private clinics, sports settings, aged care, disability services, community health, and rehabilitation centres.",
+    typicalTasks: "Assessing movement, planning rehabilitation, prescribing exercises, treating injuries, educating patients, and documenting progress.",
+    tradeOffs: "Very strong employment pathway with practical clinical work, but income ceiling is usually lower than medicine, dentistry or high-end finance/technology.",
+    riskNotes: "Physical workload, patient volume, private clinic economics, registration, and placement demands should be checked.",
+    occupationSources: [sources.jsaPhysiotherapists],
+    scoringProfile: {
+      salaryPotential: 3, workLifeBalance: 3, codingIntensity: 1, mathsPhysicsFit: 2,
+      competitionLevel: 3, riskLevel: 2, remoteWorkFit: 1, stabilityLevel: 5,
+      flexibilityLevel: 4, peopleFacingLevel: 5, technicalLevel: 4,
+      interestFit: { maths: 2, physics: 3, chemistry: 3, coding: 1, business: 1 }
+    },
+    overallNotes: "Very strong employment pathway with practical clinical work, but income ceiling is usually lower than medicine, dentistry or high-end finance/technology."
+  }),
+  makeMajor({
+    id: "occupational-therapy",
+    name: "Occupational Therapy",
+    summary: "Health and rehabilitation pathway focused on daily functioning, disability support, mental health, assistive technology, and participation.",
+    go8Entries: [],
+    graduateRoles: ["Graduate occupational therapist", "Disability support clinician", "Rehabilitation clinician"],
+    salaryRange: "$75,000 median annual full-time salary for domestic undergraduates in QILT Rehabilitation, 2024.",
+    employmentOutlook: qiltRehabilitation,
+    graduateNotes: "Rehabilitation QILT outcomes are strong, but registration, placement, and setting-specific demand matter.",
+    graduateSources: [sources.qilt],
+    occupations: ["Occupational therapist", "Rehabilitation clinician", "Disability services clinician"],
+    workStyle: "People-facing clinical work involving functional assessment, intervention planning, assistive equipment, family communication, and progress documentation.",
+    workingHours: "Jobs and Skills Australia occupation data supplied for this project reports median full-time earnings of $1,913/week for Occupational Therapists.",
+    jobEnvironment: "Hospitals, community health, disability services, schools, aged care, rehabilitation providers, and mental health settings.",
+    typicalTasks: "Assessing daily function, designing interventions, recommending assistive equipment, supporting independence, and coordinating with families or care teams.",
+    tradeOffs: "Stable health-care pathway with strong employability, but often less scalable financially than high-income quantitative or engineering careers.",
+    riskNotes: "Emotional labour, documentation, travel, NDIS/provider settings, registration, and placement requirements can shape work conditions.",
+    occupationSources: [sources.jsaOccupationalTherapists],
+    scoringProfile: {
+      salaryPotential: 3, workLifeBalance: 3, codingIntensity: 1, mathsPhysicsFit: 1,
+      competitionLevel: 2, riskLevel: 2, remoteWorkFit: 1, stabilityLevel: 5,
+      flexibilityLevel: 4, peopleFacingLevel: 5, technicalLevel: 3,
+      interestFit: { maths: 1, physics: 1, chemistry: 3, coding: 1, business: 1 }
+    },
+    overallNotes: "Stable health-care pathway with strong employability, but often less scalable financially than high-income quantitative or engineering careers."
+  }),
+  makeMajor({
+    id: "psychology",
+    name: "Psychology",
+    summary: "Behavioural science pathway focused on cognition, mental health, research methods, counselling foundations, and human behaviour.",
+    go8Entries: [],
+    graduateRoles: ["Psychology graduate", "Behaviour support assistant", "Research assistant"],
+    salaryRange: "$75,100 median annual full-time salary for domestic undergraduates in QILT Psychology, 2024.",
+    employmentOutlook: qiltPsychology,
+    furtherStudyCommon: true,
+    graduateNotes: "Undergraduate psychology is not the full professional pathway; registration usually requires further accredited study and supervised training.",
+    graduateSources: [sources.qilt],
+    occupations: ["Psychologist", "Psychotherapist pathway", "Behaviour support practitioner"],
+    workStyle: "People-facing and research-aware work involving assessment, communication, behaviour support, mental health knowledge, documentation, and ethics.",
+    workingHours: "Jobs and Skills Australia occupation data supplied for this project reports median full-time earnings of $2,204/week for Psychologists and Psychotherapists.",
+    jobEnvironment: "Clinics, schools, hospitals, community services, disability providers, research settings, organisations, and private practice pathways.",
+    typicalTasks: "Assessing behaviour and wellbeing, supporting interventions, reviewing evidence, writing reports, communicating with clients, and following ethical standards.",
+    tradeOffs: "Can become valuable after full registration, but undergraduate psychology alone is not the full professional pathway and usually requires postgraduate training.",
+    riskNotes: "Postgraduate entry, supervised practice, registration hurdles, emotional load, and indirect career paths are major planning risks.",
+    occupationSources: [sources.jsaPsychologists],
+    scoringProfile: {
+      salaryPotential: 4, workLifeBalance: 3, codingIntensity: 1, mathsPhysicsFit: 2,
+      competitionLevel: 5, riskLevel: 4, remoteWorkFit: 1, stabilityLevel: 4,
+      flexibilityLevel: 4, peopleFacingLevel: 5, technicalLevel: 3,
+      interestFit: { maths: 2, physics: 1, chemistry: 2, coding: 1, business: 1 }
+    },
+    overallNotes: "Can become valuable after full registration, but undergraduate psychology alone is not the full professional pathway and usually requires postgraduate training."
   }),
   makeMajor({
     id: "nursing",

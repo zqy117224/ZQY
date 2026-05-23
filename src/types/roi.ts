@@ -1,5 +1,8 @@
 export type DataQuality = "source-backed" | "existing-project-data" | "user-assumption" | "missing";
-export type DataLabel = "specific occupation data" | "specific graduate data" | "broad field estimate";
+export type DataLabel =
+  | "specific occupation data"
+  | "specific graduate data"
+  | "broad field graduate outcome";
 
 export type SourceMeta = {
   sourceName: string;
@@ -24,6 +27,11 @@ export type TaxResidency = "australian-resident" | "foreign-resident" | "simple-
 export type PathwayFinancialProfile = {
   pathwayId: string;
   studyYears: SourcedNumber;
+  professionalPathwayYears?: SourcedNumber;
+  professionalPathwayLabel?: string;
+  yearsToGeneralRegistration?: SourcedNumber;
+  registrationRequired?: boolean;
+  trainingNote?: string;
   tuitionPerYear: SourcedNumber;
   livingCostPerYearWhileStudying: SourcedNumber;
   otherStudyCosts: SourcedNumber;

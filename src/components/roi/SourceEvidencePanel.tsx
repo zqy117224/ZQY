@@ -96,6 +96,17 @@ export function SourceEvidencePanel({ profile }: SourceEvidencePanelProps) {
         <SalaryReferenceCard title="JSA occupation median reference" value={profile.occupationMedianSalary} />
       </div>
 
+      {profile.trainingNote ? (
+        <div className="mt-6 rounded-lg border border-coral/30 bg-coral/10 p-4 text-sm leading-6 text-stone-700">
+          <p className="font-semibold text-ink">Training and registration scope</p>
+          <p className="mt-2">{profile.trainingNote}</p>
+          <p className="mt-2">
+            This version calculates university study cost separately from time to registration or full
+            professional practice. Graduate-entry pathways are not modelled.
+          </p>
+        </div>
+      ) : null}
+
       <div className="mt-6">
         <h3 className="text-base font-semibold text-ink">Sources used</h3>
         <div className="mt-3 grid gap-3">

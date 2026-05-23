@@ -53,6 +53,29 @@ const emptyAnswers: QuestionnaireAnswers = {
   priority: "stability"
 };
 
+const biologyHealthPathwayIds = new Set([
+  "biotechnology",
+  "biomedical-science",
+  "biomedical-engineering",
+  "medicine",
+  "dentistry",
+  "pharmacy",
+  "physiotherapy",
+  "occupational-therapy",
+  "psychology",
+  "nursing"
+]);
+
+const clinicalPathwayIds = new Set([
+  "medicine",
+  "dentistry",
+  "pharmacy",
+  "physiotherapy",
+  "occupational-therapy",
+  "psychology",
+  "nursing"
+]);
+
 function asSingleValue(value: string | string[] | undefined, fallback: string) {
   if (Array.isArray(value)) {
     return value[0] ?? fallback;
@@ -232,6 +255,28 @@ function scoreMajor(major: Major, answers: QuestionnaireAnswers): Recommendation
   if (answers.interests.maths <= 2 && scoring.mathsPhysicsFit >= 4) {
     score -= 12;
     warnings.push("This pathway is maths-heavy, so low maths interest is a real warning sign.");
+  }
+
+  if (biologyHealthPathwayIds.has(major.id)) {
+    const biologyChemistrySignals = [
+      ...answers.vceSubjects,
+      ...answers.strongestSubjects
+    ].filter((subject) => ["Biology", "Chemistry", "Psychology"].includes(subject));
+
+    if (biologyChemistrySignals.length > 0 || answers.interests.chemistry >= 4) {
+      score += 14;
+      reasons.push("Your biology, chemistry, psychology, or health-science signals line up with this pathway.");
+    }
+  }
+
+  if (clinicalPathwayIds.has(major.id) && answers.workPreference === "people") {
+    score += 10;
+    reasons.push("Your people-facing work preference fits clinical or care-oriented work.");
+  }
+
+  if (major.id === "biomedical-engineering" && (answers.interests.physics >= 4 || answers.interests.maths >= 4)) {
+    score += 8;
+    reasons.push("Biomedical engineering benefits from strong maths, physics, or technical problem solving.");
   }
 
   if (answers.preferredSalary === "high") {
