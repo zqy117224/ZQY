@@ -47,6 +47,7 @@ npm run lint
 - `/questionnaire` - Student questionnaire
 - `/results` - Ranked recommendations from simple local scoring rules
 - `/comparison` - Side-by-side major comparison
+- `/roi` - Education ROI calculator for study cost, tax-adjusted income, free cash flow, and payback scenarios
 - `/consultation` - Placeholder consultation/contact page
 
 ## Folder Structure
@@ -63,8 +64,15 @@ src/
     page.tsx                  Home page
   data/
     majors.ts                 Source-backed major data
+    roiDefaults.ts            ROI calculator defaults and source metadata
   lib/
     recommendations.ts        Questionnaire parsing and scoring logic
+    roi.ts                    ROI formulas, scenario generation, and formatting
+    tax.ts                    Australian tax bracket estimate logic
+  types/
+    roi.ts                    ROI TypeScript types
+  components/
+    roi/                      ROI calculator UI components
 ```
 
 ## Important Files
@@ -89,6 +97,18 @@ Displays ranked recommendations, explanations, warnings, salary ranges, work sty
 
 Displays the side-by-side comparison table. Add rows to `comparisonRows` if you want to compare more criteria.
 
+`src/data/roiDefaults.ts`
+
+Stores the calculator defaults. Each numeric value is either source-backed, parsed from existing project data, or clearly marked as a user assumption or missing. Edit this file when you want to replace representative fees, durations, living-cost assumptions, scenario settings, or source metadata.
+
+`src/lib/roi.ts`
+
+Contains the ROI formulas for total study cost, after-tax income, annual free cash flow, payback period, risk-adjusted payback period, and scenario comparison.
+
+`src/lib/tax.ts`
+
+Contains a simple Australian income tax bracket estimate. It intentionally excludes Medicare levy, offsets, deductions, HELP/HECS, superannuation, and individual circumstances.
+
 ## How The Recommendation Logic Works
 
 The scoring is intentionally simple:
@@ -110,12 +130,15 @@ The logic is not AI. It is a beginner-friendly weighted scoring system that is e
 
 The data is manually entered from representative source pages. Prerequisites can differ by university, course, campus, year, student type, and selection pathway. Verify every decision against official course pages, admissions pages, labour-market data, graduate outcome sources, and expert review.
 
+ROI calculator defaults are planning inputs, not predictions. Tuition and living costs can vary sharply by student type, scholarship, campus, visa status, accommodation, family support, and year. Replace defaults with the student's official course offer and current advice before making a financial decision.
+
 ## Version 2 Ideas
 
 - Add real university course and prerequisite data.
 - Add filters by state, university, ATAR range, and student type.
 - Add Chinese-language content or bilingual mode.
 - Add saved comparison lists.
+- Add verified domestic CSP vs international tuition modes for the ROI calculator.
 - Add a proper enquiry form backend.
 - Add analytics to see which pathways users compare most.
 - Add source citations and last-updated dates for real data.

@@ -24,6 +24,11 @@ export type Recommendation = {
   explanation: string;
   reasons: string[];
   warnings: string[];
+  verdict: string;
+  upside: string;
+  risk: string;
+  bestFor: string;
+  notIdealIf: string;
 };
 
 const emptyAnswers: QuestionnaireAnswers = {
@@ -102,6 +107,70 @@ export function getRecommendations(answers: QuestionnaireAnswers): Recommendatio
     .map((major) => scoreMajor(major, answers))
     .sort((a, b) => b.score - a.score)
     .slice(0, 8);
+}
+
+export function buildProfileSummary(answers: QuestionnaireAnswers) {
+  const bullets: string[] = [];
+
+  if (answers.interests.maths >= 4 || answers.interests.coding >= 4 || answers.workPreference === "technical") {
+    bullets.push("Quantitative / technical");
+  }
+
+  if (answers.workPreference === "people") {
+    bullets.push("People-facing preference");
+  }
+
+  if (answers.priority === "income") {
+    bullets.push("High income priority");
+  }
+
+  if (answers.priority === "stability") {
+    bullets.push("Stability-focused");
+  }
+
+  if (answers.priority === "lifestyle") {
+    bullets.push("Lifestyle-focused");
+  }
+
+  if (answers.studentType === "international") {
+    bullets.push("International-risk sensitive");
+  }
+
+  if (answers.remoteWork === "no") {
+    bullets.push("Not tolerant of remote / FIFO work");
+  }
+
+  if (answers.remoteWork === "yes") {
+    bullets.push("Remote / FIFO tolerant");
+  }
+
+  if (answers.highCompetition === "no") {
+    bullets.push("Lower tolerance for high competition");
+  }
+
+  if (answers.highCompetition === "yes") {
+    bullets.push("Comfortable with competitive pathways");
+  }
+
+  if (bullets.length === 0) {
+    bullets.push("Balanced preference profile");
+  }
+
+  return bullets.slice(0, 6);
+}
+
+export function splitRecommendations(recommendations: Recommendation[]) {
+  const top = recommendations.filter((item) => item.score >= 85).slice(0, 4);
+
+  return {
+    top: top.length > 0 ? top : recommendations.slice(0, 4),
+    caution: recommendations.filter((item) => item.score >= 70 && item.score < 85).slice(0, 3),
+    lowerPriority: recommendations.filter((item) => item.score < 70).slice(0, 3)
+  };
+}
+
+export function collectMainRisks(recommendations: Recommendation[]) {
+  return Array.from(new Set(recommendations.flatMap((item) => item.warnings))).slice(0, 6);
 }
 
 function scoreMajor(major: Major, answers: QuestionnaireAnswers): Recommendation {
@@ -273,7 +342,12 @@ function scoreMajor(major: Major, answers: QuestionnaireAnswers): Recommendation
     score: Math.round(score),
     explanation: buildExplanation(major, answers),
     reasons: reasons.slice(0, 3),
-    warnings: warnings.slice(0, 3)
+    warnings: warnings.slice(0, 3),
+    verdict: buildVerdict(major),
+    upside: buildUpside(major),
+    risk: major.occupationOutcomes.riskNotes,
+    bestFor: buildBestFor(major, answers),
+    notIdealIf: buildNotIdealIf(major, answers)
   };
 }
 
@@ -304,4 +378,52 @@ function buildExplanation(major: Major, answers: QuestionnaireAnswers) {
   }
 
   return `${major.name} is worth exploring because it has a reasonable overall fit across your answers.`;
+}
+
+function buildVerdict(major: Major) {
+  return `${major.name}: ${major.occupationOutcomes.tradeOffs}`;
+}
+
+function buildUpside(major: Major) {
+  if (major.scoringProfile.salaryPotential >= 4) {
+    return major.graduateOutcomes.salaryRange;
+  }
+
+  if (major.scoringProfile.stabilityLevel >= 4) {
+    return major.graduateOutcomes.employmentOutlook;
+  }
+
+  return major.occupationOutcomes.tradeOffs;
+}
+
+function buildBestFor(major: Major, answers: QuestionnaireAnswers) {
+  if (major.scoringProfile.technicalLevel >= 4 && answers.workPreference !== "people") {
+    return "Students who are comfortable with technical depth and structured problem solving.";
+  }
+
+  if (major.scoringProfile.peopleFacingLevel >= 4) {
+    return "Students who are comfortable with people-facing responsibility and communication-heavy work.";
+  }
+
+  return "Students whose subjects, priorities, and work preferences broadly align with this pathway.";
+}
+
+function buildNotIdealIf(major: Major, answers: QuestionnaireAnswers) {
+  if (major.scoringProfile.remoteWorkFit >= 4 && answers.remoteWork === "no") {
+    return "You want to avoid regional, remote, or FIFO-style work conditions.";
+  }
+
+  if (major.scoringProfile.codingIntensity >= 4 && answers.interests.coding <= 2) {
+    return "You have low tolerance for sustained coding practice.";
+  }
+
+  if (major.scoringProfile.workLifeBalance <= 2 && answers.priority === "lifestyle") {
+    return "Lifestyle and predictable hours matter more than upside or intensity.";
+  }
+
+  if (major.scoringProfile.competitionLevel >= 4 && answers.highCompetition === "no") {
+    return "You want a lower-pressure path with less internship and graduate role competition.";
+  }
+
+  return "The main risks and work conditions feel out of step with your preferences.";
 }

@@ -5,13 +5,14 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "VCE Pathway Compass",
-  description: "MVP for comparing university majors and career pathways with source-backed data."
+  description: "A practical decision tool for comparing Australian university pathways, prerequisites, career outcomes, and risks."
 };
 
 const navItems = [
   { href: "/", label: "Home" },
-  { href: "/questionnaire", label: "Questionnaire" },
+  { href: "/questionnaire", label: "Start" },
   { href: "/comparison", label: "Compare" },
+  { href: "/roi", label: "ROI Calculator" },
   { href: "/consultation", label: "Consultation" }
 ];
 

@@ -1,9 +1,27 @@
 import Link from "next/link";
+import { SectionHeader } from "@/components/section-header";
 
 const highlights = [
-  "Check broad eligibility signals from VCE-style prerequisites",
-  "Compare salaries, working hours, work settings, and risks",
-  "Use sourced recommendations as a starting point for family discussion"
+  {
+    title: "Compare prerequisites and ATAR signals",
+    body: "Review university-specific Go8 entries instead of treating one course rule as universal."
+  },
+  {
+    title: "Understand salary, employment, workload, and risks",
+    body: "See sourced graduate outcomes, work settings, hours, and practical downside before committing."
+  },
+  {
+    title: "See trade-offs for international students and families",
+    body: "Spot pathways where registration, placements, or competitive hiring deserve extra caution."
+  },
+  {
+    title: "Generate a practical pathway shortlist",
+    body: "Start with fit, then compare evidence side by side before spending more time or tuition dollars."
+  },
+  {
+    title: "Estimate education ROI",
+    body: "Estimate study cost, tax-adjusted income, free cash flow, and payback time under different scenarios."
+  }
 ];
 
 export default function HomePage() {
@@ -18,55 +36,75 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/78 to-ink/28" />
         <div className="relative mx-auto flex min-h-[calc(100svh-120px)] max-w-6xl flex-col justify-center px-4 py-14">
           <p className="mb-3 text-sm font-semibold uppercase text-coral">
-            MVP for Australian students
+            Practical pathway decision tool
           </p>
-          <h1 className="max-w-3xl text-4xl font-bold text-white sm:text-5xl">
-            Compare university majors with the career realities attached.
+          <h1 className="max-w-4xl text-4xl font-bold text-white sm:text-5xl">
+            Compare Australian university pathways by prerequisites, risk, salary, and career reality.
           </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-white/90">
-            A simple decision-support tool for VCE students, international
-            students, and Chinese-speaking families who want a practical first
-            look at pathways before speaking with a school or university adviser.
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-white/90">
+            Built for VCE students, international students, and Chinese-speaking
+            families who need a calmer, more analytical way to narrow major choices
+            before applications, tuition commitments, or advice sessions.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/questionnaire"
               className="rounded-md bg-coral px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-coral/90"
             >
-              Start questionnaire
+              Start
             </Link>
             <Link
               href="/comparison"
               className="rounded-md border border-white/70 bg-white/10 px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-white hover:text-ink"
             >
-              Compare majors
+              Compare Majors
             </Link>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-6 px-4 py-10 lg:grid-cols-[0.75fr_1.25fr]">
-        <div>
-          <h2 className="text-2xl font-bold text-ink">How it helps</h2>
-          <p className="mt-3 text-stone-700">
-            It gives an early, practical comparison. The next version can replace
-            the source list with more universities and labour-market sources.
-          </p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-3">
+      <section className="mx-auto max-w-6xl px-4 py-12">
+        <SectionHeader
+          eyebrow="What it helps with"
+          title="Designed for difficult education decisions"
+          description="Use the questionnaire to build a shortlist, then compare pathways against the evidence families actually care about: entry barriers, employment, workload, risk, and lifestyle trade-offs."
+        />
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {highlights.map((item) => (
-            <div key={item} className="rounded-lg border border-stone-200 bg-white p-5">
+            <div key={item.title} className="rounded-lg border border-stone-200 bg-white p-5">
               <span className="mb-4 block h-1.5 w-12 rounded-md bg-leaf" />
-              <p className="text-sm leading-6 text-stone-700">{item}</p>
+              <h3 className="text-base font-semibold text-ink">{item.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-stone-700">{item.body}</p>
             </div>
           ))}
         </div>
       </section>
 
+      <section className="mx-auto max-w-6xl px-4 pb-10">
+        <div className="grid gap-8 rounded-lg border border-stone-200 bg-white p-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <SectionHeader
+            eyebrow="How to use this tool"
+            title="A simple workflow for a high-stakes choice"
+            description="The goal is not to promise a perfect answer. The goal is to help you compare realistic options with clearer evidence and fewer blind spots."
+          />
+          <div className="grid gap-4 md:grid-cols-3">
+            {[
+              "Fill in your subjects, strengths, and preferences",
+              "Get a pathway profile and recommendations",
+              "Compare majors side by side with source-backed evidence"
+            ].map((item, index) => (
+              <div key={item} className="rounded-lg bg-stone-50 p-4">
+                <p className="text-sm font-semibold text-coral">Step {index + 1}</p>
+                <p className="mt-2 text-sm leading-6 text-stone-700">{item}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="mx-auto max-w-6xl px-4 pb-14">
         <div className="rounded-lg bg-skywash p-5 text-sm leading-6 text-stone-700">
-          Data uses representative source-backed values. This is not admission,
-          migration, career, salary, or financial advice.
+          Source-backed guidance only. This tool does not provide admission, migration, salary, financial, or career advice.
         </div>
       </section>
     </div>

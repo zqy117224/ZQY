@@ -1,11 +1,28 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { PathwayCard } from "@/components/pathway-card";
+import { ProfileSummaryCard } from "@/components/profile-summary-card";
+import { RiskBadge } from "@/components/risk-badge";
+import { ScoreBar } from "@/components/score-bar";
+import { SectionHeader } from "@/components/section-header";
+import { SourceNote } from "@/components/source-note";
+import { VerdictCard } from "@/components/verdict-card";
+import { getRoiProfile } from "@/data/roiDefaults";
 import {
+  buildProfileSummary,
+  collectMainRisks,
   getRecommendations,
   parseQuestionnaireAnswers,
+  splitRecommendations,
   type Recommendation,
   type SearchParams
 } from "@/lib/recommendations";
+import {
+  buildInitialAssumptions,
+  calculateRoi,
+  dataLabelClasses,
+  formatCurrency,
+  formatPayback
+} from "@/lib/roi";
 
 export default function ResultsPage({ searchParams }: { searchParams: SearchParams }) {
   const answers = parseQuestionnaireAnswers(searchParams);
@@ -14,22 +31,18 @@ export default function ResultsPage({ searchParams }: { searchParams: SearchPara
     .slice(0, 4)
     .map((item) => item.major.id)
     .join(",");
+  const profileBullets = buildProfileSummary(answers);
+  const grouped = splitRecommendations(recommendations);
+  const mainRisks = collectMainRisks(recommendations);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-sm font-semibold uppercase text-coral">Source-backed results</p>
-          <h1 className="mt-2 text-3xl font-bold text-ink sm:text-4xl">
-            Recommended majors to explore
-          </h1>
-          <p className="mt-4 max-w-3xl leading-7 text-stone-700">
-            Rankings come from a simple rules-based score using the sourced
-            Go8 course entries, graduate outcome evidence, and occupation data
-            below. Treat this as a conversation starter, then verify ATAR rules,
-            fees, visa settings, and course details with the linked official sources.
-          </p>
-        </div>
+        <SectionHeader
+          eyebrow="Decision report"
+          title="Pathway recommendations and risk signals"
+          description="This report combines your answers with sourced Go8 entry information, graduate outcome evidence, and occupation data. Use it to narrow options, then verify details before making a final decision."
+        />
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
             href="/questionnaire"
@@ -41,187 +54,288 @@ export default function ResultsPage({ searchParams }: { searchParams: SearchPara
             href={`/comparison?majors=${comparisonIds}`}
             className="rounded-md bg-leaf px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-leaf/90"
           >
-            Compare top matches
+            Compare shortlist
+          </Link>
+          <Link
+            href={`/roi?pathway=${recommendations[0]?.major.id ?? "computer-science"}`}
+            className="rounded-md bg-coral px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-coral/90"
+          >
+            Open ROI calculator
           </Link>
         </div>
       </div>
 
-      <section className="grid gap-5">
-        {recommendations.map((recommendation, index) => (
-          <ResultCard
-            key={recommendation.major.id}
-            recommendation={recommendation}
-            rank={index + 1}
+      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <ProfileSummaryCard title="Your pathway profile" bullets={profileBullets} />
+        <VerdictCard
+          title="Important reminder"
+          verdict="This is a transparent rules-based tool. It does not provide admission, migration, salary, financial, or career advice, and it should not be treated as a guarantee of course entry or job outcome."
+        />
+      </div>
+
+      <section className="mt-10">
+        <SectionHeader
+          title="Top recommended pathways"
+          description="These pathways currently look most aligned with your subjects, priorities, and work preferences."
+        />
+        <div className="mt-6 grid gap-5">
+          {grouped.top.map((recommendation) => (
+            <DecisionPathwayCard key={recommendation.major.id} recommendation={recommendation} />
+          ))}
+        </div>
+      </section>
+
+      {grouped.caution.length > 0 ? (
+        <section className="mt-12">
+          <SectionHeader
+            title="Good options, but with caution"
+            description="These pathways still have upside, but one or more trade-offs deserve closer attention."
           />
-        ))}
+          <div className="mt-6 grid gap-5">
+            {grouped.caution.map((recommendation) => (
+              <DecisionPathwayCard key={recommendation.major.id} recommendation={recommendation} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {grouped.lowerPriority.length > 0 ? (
+        <section className="mt-12">
+          <SectionHeader
+            title="Probably not first-choice options"
+            description="These pathways may still be viable, but the current fit signals are weaker than your top shortlist."
+          />
+          <div className="mt-6 grid gap-5">
+            {grouped.lowerPriority.map((recommendation) => (
+              <DecisionPathwayCard key={recommendation.major.id} recommendation={recommendation} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      <section className="mt-12 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        <div>
+          <SectionHeader
+            title="Main risks to think about"
+            description="These risks appeared repeatedly across the pathways in your shortlist."
+          />
+          <div className="mt-5 grid gap-3">
+            {mainRisks.map((risk) => (
+              <VerdictCard key={risk} title="Risk to pressure-test" verdict={risk} tone="caution" />
+            ))}
+          </div>
+        </div>
+        <div className="rounded-lg border border-stone-200 bg-white p-5">
+          <h2 className="text-lg font-semibold text-ink">How to use this report well</h2>
+          <ul className="mt-4 space-y-3 text-sm leading-6 text-stone-700">
+            <li>Use fit scores to narrow the field, not to choose blindly.</li>
+            <li>Compare the top shortlist against ATAR signals, workload, and risk notes.</li>
+            <li>Open the Go8 and occupation sources before making a high-cost education decision.</li>
+          </ul>
+        </div>
       </section>
     </div>
   );
 }
 
-function ResultCard({
-  recommendation,
-  rank
-}: {
-  recommendation: Recommendation;
-  rank: number;
-}) {
-  const major = recommendation.major;
+function DecisionPathwayCard({ recommendation }: { recommendation: Recommendation }) {
+  const { major } = recommendation;
+  const firstEntry = major.go8Entries[0];
+  const roiProfile = getRoiProfile(major.id);
+  const roiCalculation = calculateRoi(buildInitialAssumptions(roiProfile));
+  const hasSalaryDefault = roiProfile.startingSalary.value !== null;
+  const evidence = [
+    major.graduateOutcomes.salaryRange,
+    major.graduateOutcomes.employmentOutlook,
+    `${firstEntry.university}: ${firstEntry.atarValue} (${firstEntry.atarType})`
+  ];
 
   return (
-    <article className="card">
-      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-        <div>
-          <p className="text-sm font-semibold text-coral">Rank {rank}</p>
-          <h2 className="mt-1 text-2xl font-bold text-ink">{major.name}</h2>
-          <p className="mt-3 leading-7 text-stone-700">{recommendation.explanation}</p>
-        </div>
-        <div className="w-full rounded-md bg-skywash p-4 text-center md:w-36">
-          <p className="text-xs font-semibold uppercase text-stone-600">Fit score</p>
-          <p className="mt-1 text-3xl font-bold text-leaf">{recommendation.score}</p>
-        </div>
+    <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-soft">
+      <PathwayCard
+        title={major.name}
+        verdict={recommendation.verdict}
+        score={recommendation.score}
+        upside={recommendation.upside}
+        risk={recommendation.risk}
+        bestFor={recommendation.bestFor}
+        notIdealIf={recommendation.notIdealIf}
+      />
+
+      <div className="mt-5 rounded-lg border border-leaf/20 bg-leaf/10 p-4">
+        <h3 className="text-sm font-semibold text-ink">Summary</h3>
+        <p className="mt-2 text-sm leading-6 text-stone-700">
+          {buildPlainEnglishVerdict(recommendation)}
+        </p>
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-3">
-        <InfoBlock title="Why it may suit">
-          <ul className="space-y-2">
+      <div className="mt-5 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="rounded-lg border border-stone-200 bg-stone-50 p-4">
+          <h3 className="text-sm font-semibold text-ink">Why it fits</h3>
+          <ul className="mt-3 space-y-2 text-sm leading-6 text-stone-700">
             {recommendation.reasons.map((reason) => (
               <li key={reason}>{reason}</li>
             ))}
           </ul>
-        </InfoBlock>
-        <InfoBlock title="Drawbacks or warnings">
-          <ul className="space-y-2">
-            {recommendation.warnings.map((warning) => (
-              <li key={warning}>{warning}</li>
+
+          <h3 className="mt-5 text-sm font-semibold text-ink">Key evidence from existing data</h3>
+          <ul className="mt-3 space-y-2 text-sm leading-6 text-stone-700">
+            {evidence.map((item) => (
+              <li key={item}>{item}</li>
             ))}
-            <li>{major.occupationOutcomes.riskNotes}</li>
           </ul>
-        </InfoBlock>
-        <InfoBlock title="Graduate outcomes">
-          <p>{major.graduateOutcomes.salaryRange}</p>
-          <p className="mt-2">{major.graduateOutcomes.employmentOutlook}</p>
-          <p className="mt-2">
-            Common roles: {major.graduateOutcomes.typicalGraduateRoles.join(", ")}
-          </p>
-          <p className="mt-2">{major.graduateOutcomes.notes}</p>
-        </InfoBlock>
+        </div>
+
+        <div className="space-y-4">
+          <div className="rounded-lg border border-stone-200 bg-white p-4">
+            <div className="flex flex-wrap gap-2">
+              <RiskBadge label="Risk" level={major.scoringProfile.riskLevel as 1 | 2 | 3 | 4 | 5} />
+              <RiskBadge
+                label="Competition"
+                level={major.scoringProfile.competitionLevel as 1 | 2 | 3 | 4 | 5}
+              />
+              <RiskBadge
+                label="Salary"
+                level={major.scoringProfile.salaryPotential as 1 | 2 | 3 | 4 | 5}
+              />
+            </div>
+            <div className="mt-4 space-y-3">
+              <ScoreBar label="Maths / physics fit" score={major.scoringProfile.mathsPhysicsFit} />
+              <ScoreBar label="Coding intensity" score={major.scoringProfile.codingIntensity} tone="ink" />
+              <ScoreBar
+                label="Work-life balance"
+                score={major.scoringProfile.workLifeBalance}
+                tone="coral"
+              />
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-stone-200 bg-white p-4">
+            <h3 className="text-sm font-semibold text-ink">Go8 snapshot</h3>
+            <div className="mt-3 space-y-3">
+              {major.go8Entries.slice(0, 2).map((entry) => (
+                <div key={`${entry.university}-${entry.courseName}`} className="rounded-md bg-stone-50 p-3 text-sm leading-6 text-stone-700">
+                  <p className="font-semibold text-ink">{entry.university}</p>
+                  <p>{entry.courseName}</p>
+                  <p>
+                    ATAR signal: {entry.atarValue} ({entry.atarType})
+                  </p>
+                  <p>Requirement type: {entry.requirementType}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="mt-5">
-        <h3 className="text-lg font-semibold text-ink">Go8 course entries</h3>
-        <div className="mt-3 grid gap-3 lg:grid-cols-2">
-          {major.go8Entries.map((entry) => (
-            <Go8EntryCard key={`${entry.university}-${entry.courseName}`} entry={entry} />
+      <div className="mt-5 rounded-lg border border-stone-200 bg-skywash p-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-ink">Default ROI snapshot</h3>
+            <p className="mt-1 text-sm leading-6 text-stone-700">
+              Uses the calculator&apos;s current source-backed and editable default inputs. Treat this as a rough planning signal.
+            </p>
+          </div>
+          <Link
+            href={`/roi?pathway=${major.id}`}
+            className="w-fit rounded-md bg-coral px-4 py-3 text-sm font-semibold text-white transition hover:bg-coral/90"
+          >
+            Open advanced ROI calculator
+          </Link>
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <RoiMiniMetric label="Total study cost" value={formatCurrency(roiCalculation.totalStudyCost)} />
+          <RoiMiniMetric
+            label="After-tax income"
+            value={hasSalaryDefault ? formatCurrency(roiCalculation.afterTaxIncome) : "Salary assumption needed"}
+          />
+          <RoiMiniMetric
+            label="Free cash flow"
+            value={hasSalaryDefault ? formatCurrency(roiCalculation.annualFreeCashFlow) : "Salary assumption needed"}
+          />
+          <RoiMiniMetric
+            label="Risk-adjusted payback"
+            value={
+              hasSalaryDefault
+                ? formatPayback(
+                    roiCalculation.riskAdjustedPaybackPeriodYears,
+                    "Not recovered after risk adjustment."
+                  )
+                : "Salary assumption needed"
+            }
+          />
+        </div>
+        <p className="mt-3 text-xs leading-5 text-stone-600">
+          {roiProfile.startingSalary.dataLabel ? (
+            <span
+              className={`mr-2 inline-block rounded-md border px-2.5 py-1 text-xs font-semibold ${dataLabelClasses[roiProfile.startingSalary.dataLabel]}`}
+            >
+              {roiProfile.startingSalary.dataLabel}
+            </span>
+          ) : null}
+          Salary basis: {roiProfile.startingSalary.note}
+        </p>
+        <p className="mt-1 text-xs leading-5 text-stone-600">
+          {roiProfile.laterCareerSalary.dataLabel ? (
+            <span
+              className={`mr-2 inline-block rounded-md border px-2.5 py-1 text-xs font-semibold ${dataLabelClasses[roiProfile.laterCareerSalary.dataLabel]}`}
+            >
+              {roiProfile.laterCareerSalary.dataLabel}
+            </span>
+          ) : null}
+          Later-career reference: {roiProfile.laterCareerSalary.note}
+        </p>
+      </div>
+
+      <div className="mt-5 rounded-lg border border-stone-200 bg-white p-4">
+        <h3 className="text-sm font-semibold text-ink">Warnings you should not ignore</h3>
+        <ul className="mt-3 space-y-2 text-sm leading-6 text-stone-700">
+          {recommendation.warnings.map((warning) => (
+            <li key={warning}>{warning}</li>
           ))}
-        </div>
+        </ul>
       </div>
 
-      <div className="mt-5 grid gap-3 text-sm text-stone-700 md:grid-cols-3">
-        <MiniFact label="Working hours" value={major.occupationOutcomes.workingHours} />
-        <MiniFact label="Job environment" value={major.occupationOutcomes.jobEnvironment} />
-        <MiniFact label="Typical tasks" value={major.occupationOutcomes.typicalTasks} />
-      </div>
-
-      <div className="mt-5 grid gap-3 text-sm text-stone-700 md:grid-cols-2">
-        <MiniFact label="Trade-offs" value={major.occupationOutcomes.tradeOffs} />
-        <SourceList
-          label="Graduate and occupation sources"
-          sources={[
-            ...major.graduateOutcomes.sources,
-            ...major.occupationOutcomes.sources
-          ]}
+      <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr]">
+        <SourceNote
+          title="Go8 entry sources"
+          sources={major.go8Entries.map((entry) => ({
+            label: `${entry.university} - ${entry.courseName}`,
+            url: entry.sourceLink,
+            lastUpdated: entry.lastChecked,
+            note: `${entry.atarType}; requirement type: ${entry.requirementType}. ${entry.notes}`
+          }))}
+          compact
         />
-        <MiniFact
-          label="Scoring profile"
-          value={`Salary ${major.scoringProfile.salaryPotential}/5, work-life balance ${major.scoringProfile.workLifeBalance}/5, coding ${major.scoringProfile.codingIntensity}/5, maths/physics ${major.scoringProfile.mathsPhysicsFit}/5, competition ${major.scoringProfile.competitionLevel}/5, risk ${major.scoringProfile.riskLevel}/5.`}
+        <SourceNote
+          title="Graduate and occupation sources"
+          sources={[...major.graduateOutcomes.sources, ...major.occupationOutcomes.sources]}
+          compact
         />
       </div>
-    </article>
-  );
-}
-
-function Go8EntryCard({
-  entry
-}: {
-  entry: {
-    university: string;
-    courseName: string;
-    atarValue: string;
-    atarType: string;
-    year: number;
-    subjectRequirements: string[];
-    requirementType: string;
-    notes: string;
-    sourceLink: string;
-    lastChecked: string;
-  };
-}) {
-  return (
-    <div className="rounded-lg border border-stone-200 bg-stone-50 p-4 text-sm leading-6 text-stone-700">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="font-semibold text-ink">{entry.university}</p>
-          <p>{entry.courseName}</p>
-        </div>
-        <div className="rounded-md bg-white px-3 py-2 text-left sm:text-right">
-          <p className="font-semibold text-ink">{entry.atarValue}</p>
-          <p className="text-xs text-stone-500">{entry.atarType}</p>
-        </div>
-      </div>
-      <p className="mt-3 font-semibold text-ink">Requirement type: {entry.requirementType}</p>
-      <ul className="mt-2 list-inside list-disc">
-        {entry.subjectRequirements.map((requirement) => (
-          <li key={requirement}>{requirement}</li>
-        ))}
-      </ul>
-      <p className="mt-2">{entry.notes}</p>
-      <a href={entry.sourceLink} className="mt-2 inline-block text-leaf underline underline-offset-2">
-        Source checked {entry.lastChecked}
-      </a>
     </div>
   );
 }
 
-function InfoBlock({ title, children }: { title: string; children: ReactNode }) {
+function RoiMiniMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-stone-200 bg-paper p-4 text-sm leading-6 text-stone-700">
-      <h3 className="mb-2 font-semibold text-ink">{title}</h3>
-      {children}
+    <div className="rounded-md border border-stone-200 bg-white p-3">
+      <p className="text-xs font-semibold uppercase text-stone-500">{label}</p>
+      <p className="mt-2 text-base font-bold text-ink">{value}</p>
     </div>
   );
 }
 
-function MiniFact({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-md bg-stone-50 p-3">
-      <p className="font-semibold text-ink">{label}</p>
-      <p className="mt-1 leading-6">{value}</p>
-    </div>
-  );
-}
+function buildPlainEnglishVerdict(recommendation: Recommendation) {
+  const { major, score } = recommendation;
 
-function SourceList({
-  label,
-  sources
-}: {
-  label: string;
-  sources: { label: string; url: string; lastUpdated: string; note: string }[];
-}) {
-  return (
-    <div className="rounded-md bg-stone-50 p-3">
-      <p className="font-semibold text-ink">{label}</p>
-      <ul className="mt-1 space-y-1 leading-6">
-        {sources.map((source) => (
-          <li key={`${source.label}-${source.url}`}>
-            <a href={source.url} className="text-leaf underline underline-offset-2">
-              {source.label}
-            </a>{" "}
-            <span className="text-stone-500">Updated {source.lastUpdated}</span>
-            <span className="mt-1 block text-stone-500">{source.note}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+  if (score >= 85) {
+    return `${major.name} looks like a strong fit, but the main risk is still worth checking before you commit.`;
+  }
+
+  if (score >= 70) {
+    return `${major.name} is plausible, but it should be compared carefully against stronger-fit options.`;
+  }
+
+  return `${major.name} may be worth reading about, but it probably should not be your first shortlist option yet.`;
 }
