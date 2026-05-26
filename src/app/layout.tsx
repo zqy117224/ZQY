@@ -1,20 +1,13 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import Link from "next/link";
+import { AppProviders } from "@/components/app-providers";
+import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "VCE Pathway Compass",
   description: "A practical decision tool for comparing Australian university pathways, prerequisites, career outcomes, and risks."
 };
-
-const navItems = [
-  { href: "/", label: "Home" },
-  { href: "/questionnaire", label: "Start" },
-  { href: "/comparison", label: "Compare" },
-  { href: "/roi", label: "ROI Calculator" },
-  { href: "/consultation", label: "Consultation" }
-];
 
 export default function RootLayout({
   children
@@ -24,25 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen antialiased">
-        <header className="border-b border-stone-200 bg-paper/90 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-            <Link href="/" className="text-lg font-bold text-ink">
-              VCE Pathway Compass
-            </Link>
-            <nav className="flex flex-wrap gap-2 text-sm">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="rounded-md px-3 py-2 text-stone-700 transition hover:bg-skywash hover:text-ink"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </header>
-        <main>{children}</main>
+        <AppProviders>
+          <SiteHeader />
+          <main>{children}</main>
+        </AppProviders>
       </body>
     </html>
   );

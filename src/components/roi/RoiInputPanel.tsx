@@ -1,4 +1,7 @@
+"use client";
+
 import { dataLabelClasses, getInputMeta, qualityClasses, qualityLabels } from "@/lib/roi";
+import { useI18n } from "@/lib/i18n";
 import { type PathwayFinancialProfile, type RoiAssumptions, type RoiInputKey } from "@/types/roi";
 
 type FieldConfig = {
@@ -96,6 +99,8 @@ export function RoiInputPanel({
   onNumberChange,
   onTaxResidencyChange
 }: RoiInputPanelProps) {
+  const { tx } = useI18n();
+
   return (
     <div className="space-y-6">
       <InputSection
@@ -115,13 +120,12 @@ export function RoiInputPanel({
       />
 
       <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-soft">
-        <h2 className="text-lg font-semibold text-ink">Tax settings</h2>
+        <h2 className="text-lg font-semibold text-ink">{tx("Tax settings")}</h2>
         <p className="mt-2 text-sm leading-6 text-stone-700">
-          Tax estimate only. It excludes Medicare levy, offsets, deductions, HELP/HECS, superannuation,
-          and individual circumstances.
+          {tx("Tax estimate only. It excludes Medicare levy, offsets, deductions, HELP/HECS, superannuation, and individual circumstances.")}
         </p>
         <label className="mt-4 block">
-          <span className="field-label">Tax residency model</span>
+          <span className="field-label">{tx("Tax residency model")}</span>
           <select
             className="input-box mt-2"
             value={assumptions.taxResidency}
@@ -129,9 +133,9 @@ export function RoiInputPanel({
               onTaxResidencyChange(event.target.value as RoiAssumptions["taxResidency"])
             }
           >
-            <option value="australian-resident">Australian resident tax brackets</option>
-            <option value="foreign-resident">Foreign resident tax brackets</option>
-            <option value="simple-effective-rate">Simple effective tax rate</option>
+            <option value="australian-resident">{tx("Australian resident tax brackets")}</option>
+            <option value="foreign-resident">{tx("Foreign resident tax brackets")}</option>
+            <option value="simple-effective-rate">{tx("Simple effective tax rate")}</option>
           </select>
         </label>
         {assumptions.taxResidency === "simple-effective-rate" ? (
@@ -173,9 +177,11 @@ function InputSection({
   profile: PathwayFinancialProfile;
   onNumberChange: (key: RoiInputKey, value: number) => void;
 }) {
+  const { tx } = useI18n();
+
   return (
     <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-soft">
-      <h2 className="text-lg font-semibold text-ink">{title}</h2>
+      <h2 className="text-lg font-semibold text-ink">{tx(title)}</h2>
       <div className="mt-5 grid gap-4">
         {fields.map((field) => (
           <InputRow
@@ -202,6 +208,7 @@ function InputRow({
   profile: PathwayFinancialProfile;
   onNumberChange: (key: RoiInputKey, value: number) => void;
 }) {
+  const { tx } = useI18n();
   const meta = getInputMeta(profile, field.key);
   const storedValue = assumptions[field.key] ?? 0;
   const displayValue = field.inputMode === "percent" ? storedValue * 100 : storedValue;
@@ -210,19 +217,19 @@ function InputRow({
     <label className="block rounded-lg border border-stone-200 bg-stone-50 p-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <span className="field-label">{field.label}</span>
-          <p className="mt-1 text-sm leading-6 text-stone-600">{field.help}</p>
+          <span className="field-label">{tx(field.label)}</span>
+          <p className="mt-1 text-sm leading-6 text-stone-600">{tx(field.help)}</p>
         </div>
         <span
           className={`w-fit rounded-md border px-2.5 py-1 text-xs font-semibold ${qualityClasses[meta.quality]}`}
         >
-          {qualityLabels[meta.quality]}
+          {tx(qualityLabels[meta.quality])}
         </span>
         {meta.dataLabel ? (
           <span
             className={`w-fit rounded-md border px-2.5 py-1 text-xs font-semibold ${dataLabelClasses[meta.dataLabel]}`}
           >
-            {meta.dataLabel}
+            {tx(meta.dataLabel)}
           </span>
         ) : null}
       </div>
@@ -242,8 +249,8 @@ function InputRow({
         {field.inputMode === "percent" ? <span className="text-sm font-semibold text-stone-600">%</span> : null}
       </div>
       <p className="mt-2 text-xs leading-5 text-stone-600">
-        {meta.source ? `${meta.source.sourceName}. ` : ""}
-        {meta.note}
+        {meta.source ? `${tx(meta.source.sourceName)}. ` : ""}
+        {tx(meta.note ?? "No source attached")}
       </p>
     </label>
   );

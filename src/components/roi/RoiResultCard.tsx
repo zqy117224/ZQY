@@ -1,4 +1,7 @@
+"use client";
+
 import { type ReactNode } from "react";
+import { useI18n } from "@/lib/i18n";
 
 type RoiResultCardProps = {
   title: string;
@@ -8,6 +11,9 @@ type RoiResultCardProps = {
 };
 
 export function RoiResultCard({ title, value, note, tone = "default" }: RoiResultCardProps) {
+  const { tx } = useI18n();
+  const displayValue = typeof value === "string" ? tx(value) : value;
+
   return (
     <div
       className={
@@ -16,9 +22,9 @@ export function RoiResultCard({ title, value, note, tone = "default" }: RoiResul
           : "rounded-lg border border-stone-200 bg-white p-5 shadow-soft"
       }
     >
-      <p className="text-sm font-semibold text-stone-600">{title}</p>
-      <p className="mt-3 text-2xl font-bold text-ink">{value}</p>
-      <p className="mt-3 text-sm leading-6 text-stone-700">{note}</p>
+      <p className="text-sm font-semibold text-stone-600">{tx(title)}</p>
+      <p className="mt-3 text-2xl font-bold text-ink">{displayValue}</p>
+      <p className="mt-3 text-sm leading-6 text-stone-700">{tx(note)}</p>
     </div>
   );
 }

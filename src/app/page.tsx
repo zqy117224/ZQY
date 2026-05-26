@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { SectionHeader } from "@/components/section-header";
+import { useI18n } from "@/lib/i18n";
 
 const highlights = [
   {
@@ -25,6 +28,8 @@ const highlights = [
 ];
 
 export default function HomePage() {
+  const { tx } = useI18n();
+
   return (
     <div>
       <section className="relative overflow-hidden bg-ink text-white">
@@ -36,28 +41,26 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/78 to-ink/28" />
         <div className="relative mx-auto flex min-h-[calc(100svh-120px)] max-w-6xl flex-col justify-center px-4 py-14">
           <p className="mb-3 text-sm font-semibold uppercase text-coral">
-            Practical pathway decision tool
+            {tx("Practical pathway decision tool")}
           </p>
           <h1 className="max-w-4xl text-4xl font-bold text-white sm:text-5xl">
-            Compare Australian university pathways by prerequisites, risk, salary, and career reality.
+            {tx("Compare Australian university pathways by prerequisites, risk, salary, and career reality.")}
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-white/90">
-            Built for VCE students, international students, and Chinese-speaking
-            families who need a calmer, more analytical way to narrow major choices
-            before applications, tuition commitments, or advice sessions.
+            {tx("Built for VCE students, international students, and Chinese-speaking families who need a calmer, more analytical way to narrow major choices before applications, tuition commitments, or advice sessions.")}
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/questionnaire"
               className="rounded-md bg-coral px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-coral/90"
             >
-              Start
+              {tx("Start")}
             </Link>
             <Link
               href="/comparison"
               className="rounded-md border border-white/70 bg-white/10 px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-white hover:text-ink"
             >
-              Compare Majors
+              {tx("Compare Majors")}
             </Link>
           </div>
         </div>
@@ -73,8 +76,8 @@ export default function HomePage() {
           {highlights.map((item) => (
             <div key={item.title} className="rounded-lg border border-stone-200 bg-white p-5">
               <span className="mb-4 block h-1.5 w-12 rounded-md bg-leaf" />
-              <h3 className="text-base font-semibold text-ink">{item.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-stone-700">{item.body}</p>
+              <h3 className="text-base font-semibold text-ink">{tx(item.title)}</h3>
+              <p className="mt-2 text-sm leading-6 text-stone-700">{tx(item.body)}</p>
             </div>
           ))}
         </div>
@@ -94,8 +97,10 @@ export default function HomePage() {
               "Compare majors side by side with source-backed evidence"
             ].map((item, index) => (
               <div key={item} className="rounded-lg bg-stone-50 p-4">
-                <p className="text-sm font-semibold text-coral">Step {index + 1}</p>
-                <p className="mt-2 text-sm leading-6 text-stone-700">{item}</p>
+                <p className="text-sm font-semibold text-coral">
+                  {tx("Step")} {index + 1}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-stone-700">{tx(item)}</p>
               </div>
             ))}
           </div>
@@ -104,7 +109,7 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-6xl px-4 pb-14">
         <div className="rounded-lg bg-skywash p-5 text-sm leading-6 text-stone-700">
-          Source-backed guidance only. This tool does not provide admission, migration, salary, financial, or career advice.
+          {tx("Source-backed guidance only. This tool does not provide admission, migration, salary, financial, or career advice.")}
         </div>
       </section>
     </div>

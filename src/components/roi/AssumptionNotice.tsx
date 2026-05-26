@@ -1,4 +1,7 @@
+"use client";
+
 import { findAssumptionWarnings, qualityClasses, qualityLabels } from "@/lib/roi";
+import { useI18n } from "@/lib/i18n";
 import { type PathwayFinancialProfile } from "@/types/roi";
 
 type AssumptionNoticeProps = {
@@ -6,6 +9,7 @@ type AssumptionNoticeProps = {
 };
 
 export function AssumptionNotice({ profile }: AssumptionNoticeProps) {
+  const { tx } = useI18n();
   const warnings = findAssumptionWarnings(profile);
 
   if (warnings.length === 0) {
@@ -16,9 +20,9 @@ export function AssumptionNotice({ profile }: AssumptionNoticeProps) {
 
   return (
     <div className="rounded-lg border border-coral/30 bg-coral/10 p-5 text-sm leading-6 text-stone-700">
-      <h2 className="text-base font-semibold text-ink">Assumption warning</h2>
+      <h2 className="text-base font-semibold text-ink">{tx("Assumption warning")}</h2>
       <p className="mt-2">
-        Some values are assumptions, so this result should be treated as a rough model, not a prediction.
+        {tx("Some values are assumptions, so this result should be treated as a rough model, not a prediction.")}
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         {shownWarnings.map(({ field, meta }) => (
@@ -26,7 +30,7 @@ export function AssumptionNotice({ profile }: AssumptionNoticeProps) {
             key={field}
             className={`rounded-md border px-2.5 py-1 text-xs font-semibold ${qualityClasses[meta.quality]}`}
           >
-            {field}: {qualityLabels[meta.quality]}
+            {tx(field)}: {tx(qualityLabels[meta.quality])}
           </span>
         ))}
       </div>

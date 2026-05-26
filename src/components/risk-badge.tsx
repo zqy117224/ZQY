@@ -1,3 +1,7 @@
+"use client";
+
+import { useI18n } from "@/lib/i18n";
+
 export function RiskBadge({
   label,
   level
@@ -11,10 +15,11 @@ export function RiskBadge({
       : level === 3
         ? "bg-amber-50 text-amber-700 border-amber-200"
         : "bg-leaf/10 text-leaf border-leaf/20";
+  const { tx } = useI18n();
 
   return (
     <span className={`inline-flex items-center rounded-md border px-2 py-1 text-xs font-semibold ${tone}`}>
-      {label}: {level}/5
+      {tx(label)}: {level}/5
     </span>
   );
 }

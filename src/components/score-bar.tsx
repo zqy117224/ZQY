@@ -1,3 +1,7 @@
+"use client";
+
+import { useI18n } from "@/lib/i18n";
+
 export function ScoreBar({
   label,
   score,
@@ -10,11 +14,12 @@ export function ScoreBar({
   const width = `${Math.max(0, Math.min(100, (score / 5) * 100))}%`;
   const toneClass =
     tone === "coral" ? "bg-coral" : tone === "ink" ? "bg-ink" : "bg-leaf";
+  const { tx } = useI18n();
 
   return (
     <div>
       <div className="mb-1 flex items-center justify-between gap-3 text-sm">
-        <span className="font-medium text-ink">{label}</span>
+        <span className="font-medium text-ink">{tx(label)}</span>
         <span className="text-stone-600">{score}/5</span>
       </div>
       <div className="h-2 rounded-full bg-stone-200">

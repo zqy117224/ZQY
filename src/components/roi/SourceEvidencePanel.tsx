@@ -1,5 +1,8 @@
+"use client";
+
 import { scenarioAdjustments } from "@/data/roiDefaults";
 import { dataLabelClasses, formatCurrency, getInputMeta, qualityClasses, qualityLabels } from "@/lib/roi";
+import { useI18n } from "@/lib/i18n";
 import { atoTaxSource } from "@/lib/tax";
 import { type PathwayFinancialProfile, type RoiInputKey, type SourceMeta } from "@/types/roi";
 
@@ -23,6 +26,7 @@ const fields: { key: RoiInputKey; label: string }[] = [
 ];
 
 export function SourceEvidencePanel({ profile }: SourceEvidencePanelProps) {
+  const { tx } = useI18n();
   const fieldItems = fields.map((field) => ({
     ...field,
     meta: getInputMeta(profile, field.key)
@@ -42,10 +46,9 @@ export function SourceEvidencePanel({ profile }: SourceEvidencePanelProps) {
 
   return (
     <details className="rounded-lg border border-stone-200 bg-white p-5 shadow-soft" open>
-      <summary className="cursor-pointer text-lg font-semibold text-ink">Source evidence and assumptions</summary>
+      <summary className="cursor-pointer text-lg font-semibold text-ink">{tx("Source evidence and assumptions")}</summary>
       <p className="mt-3 text-sm leading-6 text-stone-700">
-        This panel separates sourced values from assumptions. Replace course fees, living costs, and tax
-        settings with the student&apos;s own official offer or advice before relying on the model.
+        {tx("This panel separates sourced values from assumptions. Replace course fees, living costs, and tax settings with the student's own official offer or advice before relying on the model.")}
       </p>
 
       <div className="mt-5 grid gap-3">
@@ -55,34 +58,34 @@ export function SourceEvidencePanel({ profile }: SourceEvidencePanelProps) {
             className="grid gap-3 rounded-lg border border-stone-200 bg-stone-50 p-4 text-sm md:grid-cols-[210px_1fr]"
           >
             <div>
-              <p className="font-semibold text-ink">{item.label}</p>
+              <p className="font-semibold text-ink">{tx(item.label)}</p>
               <span
                 className={`mt-2 inline-block rounded-md border px-2.5 py-1 text-xs font-semibold ${qualityClasses[item.meta.quality]}`}
               >
-                {qualityLabels[item.meta.quality]}
+                {tx(qualityLabels[item.meta.quality])}
               </span>
               {item.meta.dataLabel ? (
                 <span
                   className={`ml-2 mt-2 inline-block rounded-md border px-2.5 py-1 text-xs font-semibold ${dataLabelClasses[item.meta.dataLabel]}`}
                 >
-                  {item.meta.dataLabel}
+                  {tx(item.meta.dataLabel)}
                 </span>
               ) : null}
             </div>
             <div className="leading-6 text-stone-700">
-              <p>{item.meta.note}</p>
+              <p>{tx(item.meta.note ?? "No source attached")}</p>
               {item.meta.source ? (
                 <p className="mt-1">
-                  Source:{" "}
+                  {tx("Source")}:{" "}
                   {item.meta.source.sourceUrl ? (
                     <a
                       href={item.meta.source.sourceUrl}
                       className="text-leaf underline underline-offset-2"
                     >
-                      {item.meta.source.sourceName}
+                      {tx(item.meta.source.sourceName)}
                     </a>
                   ) : (
-                    item.meta.source.sourceName
+                    tx(item.meta.source.sourceName)
                   )}
                 </p>
               ) : null}
@@ -98,34 +101,33 @@ export function SourceEvidencePanel({ profile }: SourceEvidencePanelProps) {
 
       {profile.trainingNote ? (
         <div className="mt-6 rounded-lg border border-coral/30 bg-coral/10 p-4 text-sm leading-6 text-stone-700">
-          <p className="font-semibold text-ink">Training and registration scope</p>
-          <p className="mt-2">{profile.trainingNote}</p>
+          <p className="font-semibold text-ink">{tx("Training and registration scope")}</p>
+          <p className="mt-2">{tx(profile.trainingNote)}</p>
           <p className="mt-2">
-            This version calculates university study cost separately from time to registration or full
-            professional practice. Graduate-entry pathways are not modelled.
+            {tx("This version calculates university study cost separately from time to registration or full professional practice. Graduate-entry pathways are not modelled.")}
           </p>
         </div>
       ) : null}
 
       <div className="mt-6">
-        <h3 className="text-base font-semibold text-ink">Sources used</h3>
+        <h3 className="text-base font-semibold text-ink">{tx("Sources used")}</h3>
         <div className="mt-3 grid gap-3">
           {sources.map((source) => (
             <div key={`${source.sourceName}-${source.scope}`} className="rounded-lg border border-stone-200 p-4">
               <p className="font-semibold text-ink">
                 {source.sourceUrl ? (
                   <a href={source.sourceUrl} className="text-leaf underline underline-offset-2">
-                    {source.sourceName}
+                    {tx(source.sourceName)}
                   </a>
                 ) : (
-                  source.sourceName
+                  tx(source.sourceName)
                 )}
               </p>
-              <p className="mt-2 text-sm leading-6 text-stone-700">Scope: {source.scope}</p>
+              <p className="mt-2 text-sm leading-6 text-stone-700">{tx("Scope")}: {tx(source.scope)}</p>
               <p className="text-sm leading-6 text-stone-700">
-                Date: {source.sourceDate ?? source.lastUpdated ?? "Not specified"}
+                {tx("Date")}: {source.sourceDate ?? source.lastUpdated ?? tx("Not specified")}
               </p>
-              {source.note ? <p className="text-sm leading-6 text-stone-700">Limit: {source.note}</p> : null}
+              {source.note ? <p className="text-sm leading-6 text-stone-700">{tx("Limit")}: {tx(source.note)}</p> : null}
             </div>
           ))}
         </div>
@@ -135,34 +137,36 @@ export function SourceEvidencePanel({ profile }: SourceEvidencePanelProps) {
 }
 
 function SalaryReferenceCard({ title, value }: { title: string; value: PathwayFinancialProfile["laterCareerSalary"] }) {
+  const { tx } = useI18n();
+
   return (
     <div className="rounded-lg border border-stone-200 bg-stone-50 p-4 text-sm leading-6 text-stone-700">
-      <p className="font-semibold text-ink">{title}</p>
+      <p className="font-semibold text-ink">{tx(title)}</p>
       <span
         className={`mt-2 inline-block rounded-md border px-2.5 py-1 text-xs font-semibold ${qualityClasses[value.quality]}`}
       >
-        {qualityLabels[value.quality]}
+        {tx(qualityLabels[value.quality])}
       </span>
       {value.dataLabel ? (
         <span
           className={`ml-2 mt-2 inline-block rounded-md border px-2.5 py-1 text-xs font-semibold ${dataLabelClasses[value.dataLabel]}`}
         >
-          {value.dataLabel}
+          {tx(value.dataLabel)}
         </span>
       ) : null}
       <p className="mt-3 text-lg font-bold text-ink">
-        {value.value === null ? "Missing" : formatCurrency(value.value)}
+        {value.value === null ? tx("Missing") : formatCurrency(value.value)}
       </p>
-      <p className="mt-2">{value.note}</p>
+      <p className="mt-2">{tx(value.note ?? "No source attached")}</p>
       {value.source ? (
         <p className="mt-1">
-          Source:{" "}
+          {tx("Source")}:{" "}
           {value.source.sourceUrl ? (
             <a href={value.source.sourceUrl} className="text-leaf underline underline-offset-2">
-              {value.source.sourceName}
+              {tx(value.source.sourceName)}
             </a>
           ) : (
-            value.source.sourceName
+            tx(value.source.sourceName)
           )}
         </p>
       ) : null}

@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { PathwayCard } from "@/components/pathway-card";
 import { ProfileSummaryCard } from "@/components/profile-summary-card";
@@ -24,8 +26,10 @@ import {
   formatPayback,
   formatPercent
 } from "@/lib/roi";
+import { useI18n } from "@/lib/i18n";
 
 export default function ResultsPage({ searchParams }: { searchParams: SearchParams }) {
+  const { tx } = useI18n();
   const answers = parseQuestionnaireAnswers(searchParams);
   const recommendations = getRecommendations(answers);
   const comparisonIds = recommendations
@@ -49,19 +53,19 @@ export default function ResultsPage({ searchParams }: { searchParams: SearchPara
             href="/questionnaire"
             className="rounded-md border border-stone-300 bg-white px-4 py-3 text-center text-sm font-semibold text-ink transition hover:border-leaf hover:text-leaf"
           >
-            Change answers
+            {tx("Change answers")}
           </Link>
           <Link
             href={`/comparison?majors=${comparisonIds}`}
             className="rounded-md bg-leaf px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-leaf/90"
           >
-            Compare shortlist
+            {tx("Compare shortlist")}
           </Link>
           <Link
             href={`/roi?pathway=${recommendations[0]?.major.id ?? "computer-science"}`}
             className="rounded-md bg-coral px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-coral/90"
           >
-            Open ROI calculator
+            {tx("Open ROI calculator")}
           </Link>
         </div>
       </div>
@@ -127,11 +131,11 @@ export default function ResultsPage({ searchParams }: { searchParams: SearchPara
           </div>
         </div>
         <div className="rounded-lg border border-stone-200 bg-white p-5">
-          <h2 className="text-lg font-semibold text-ink">How to use this report well</h2>
+          <h2 className="text-lg font-semibold text-ink">{tx("How to use this report well")}</h2>
           <ul className="mt-4 space-y-3 text-sm leading-6 text-stone-700">
-            <li>Use fit scores to narrow the field, not to choose blindly.</li>
-            <li>Compare the top shortlist against ATAR signals, workload, and risk notes.</li>
-            <li>Open the Go8 and occupation sources before making a high-cost education decision.</li>
+            <li>{tx("Use fit scores to narrow the field, not to choose blindly.")}</li>
+            <li>{tx("Compare the top shortlist against ATAR signals, workload, and risk notes.")}</li>
+            <li>{tx("Open the Go8 and occupation sources before making a high-cost education decision.")}</li>
           </ul>
         </div>
       </section>
@@ -140,6 +144,7 @@ export default function ResultsPage({ searchParams }: { searchParams: SearchPara
 }
 
 function DecisionPathwayCard({ recommendation }: { recommendation: Recommendation }) {
+  const { tx } = useI18n();
   const { major } = recommendation;
   const firstEntry = major.go8Entries[0];
   const roiProfile = getRoiProfile(major.id);
@@ -167,25 +172,25 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
       />
 
       <div className="mt-5 rounded-lg border border-leaf/20 bg-leaf/10 p-4">
-        <h3 className="text-sm font-semibold text-ink">Summary</h3>
+        <h3 className="text-sm font-semibold text-ink">{tx("Summary")}</h3>
         <p className="mt-2 text-sm leading-6 text-stone-700">
-          {buildPlainEnglishVerdict(recommendation)}
+          {tx(buildPlainEnglishVerdict(recommendation))}
         </p>
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-lg border border-stone-200 bg-stone-50 p-4">
-          <h3 className="text-sm font-semibold text-ink">Why it fits</h3>
+          <h3 className="text-sm font-semibold text-ink">{tx("Why it fits")}</h3>
           <ul className="mt-3 space-y-2 text-sm leading-6 text-stone-700">
             {recommendation.reasons.map((reason) => (
-              <li key={reason}>{reason}</li>
+              <li key={reason}>{tx(reason)}</li>
             ))}
           </ul>
 
-          <h3 className="mt-5 text-sm font-semibold text-ink">Key evidence from existing data</h3>
+          <h3 className="mt-5 text-sm font-semibold text-ink">{tx("Key evidence from existing data")}</h3>
           <ul className="mt-3 space-y-2 text-sm leading-6 text-stone-700">
             {evidence.map((item) => (
-              <li key={item}>{item}</li>
+              <li key={item}>{tx(item)}</li>
             ))}
           </ul>
         </div>
@@ -215,16 +220,16 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
           </div>
 
           <div className="rounded-lg border border-stone-200 bg-white p-4">
-            <h3 className="text-sm font-semibold text-ink">Go8 snapshot</h3>
+            <h3 className="text-sm font-semibold text-ink">{tx("Go8 snapshot")}</h3>
             <div className="mt-3 space-y-3">
               {major.go8Entries.slice(0, 2).map((entry) => (
                 <div key={`${entry.university}-${entry.courseName}`} className="rounded-md bg-stone-50 p-3 text-sm leading-6 text-stone-700">
                   <p className="font-semibold text-ink">{entry.university}</p>
                   <p>{entry.courseName}</p>
                   <p>
-                    ATAR signal: {entry.atarValue} ({entry.atarType})
+                    {tx("ATAR signal")}: {entry.atarValue} ({tx(entry.atarType)})
                   </p>
-                  <p>Requirement type: {entry.requirementType}</p>
+                  <p>{tx("Requirement type")}: {tx(entry.requirementType)}</p>
                 </div>
               ))}
             </div>
@@ -235,16 +240,16 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
       <div className="mt-5 rounded-lg border border-stone-200 bg-skywash p-4">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-ink">Default ROI snapshot</h3>
+            <h3 className="text-sm font-semibold text-ink">{tx("Default ROI snapshot")}</h3>
             <p className="mt-1 text-sm leading-6 text-stone-700">
-              Uses the calculator&apos;s current source-backed and editable default inputs. Treat this as a rough planning signal.
+              {tx("Uses the calculator's current source-backed and editable default inputs. Treat this as a rough planning signal.")}
             </p>
           </div>
           <Link
             href={`/roi?pathway=${major.id}`}
             className="w-fit rounded-md bg-coral px-4 py-3 text-sm font-semibold text-white transition hover:bg-coral/90"
           >
-            Open advanced ROI calculator
+            {tx("Open advanced ROI calculator")}
           </Link>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -252,8 +257,8 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
             label="Study years"
             value={
               roiProfile.studyYears.value !== null
-                ? `${roiProfile.studyYears.value.toLocaleString("en-AU")} years`
-                : "Duration assumption needed"
+                ? tx(`${roiProfile.studyYears.value.toLocaleString("en-AU")} years`)
+                : tx("Duration assumption needed")
             }
           />
           <RoiMiniMetric
@@ -261,7 +266,7 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
             value={
               roiProfile.startingSalary.value !== null
                 ? formatCurrency(roiProfile.startingSalary.value)
-                : "Salary assumption needed"
+                : tx("Salary assumption needed")
             }
           />
           <RoiMiniMetric
@@ -269,7 +274,7 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
             value={
               roiProfile.occupationMedianSalary.value !== null
                 ? formatCurrency(roiProfile.occupationMedianSalary.value)
-                : "Occupation salary needed"
+                : tx("Occupation salary needed")
             }
           />
           <RoiMiniMetric
@@ -277,32 +282,32 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
             value={
               roiProfile.employmentProbability.value !== null
                 ? formatPercent(roiProfile.employmentProbability.value)
-                : "Employment assumption needed"
+                : tx("Employment assumption needed")
             }
           />
           <RoiMiniMetric
             label="University study cost"
-            value={hasTuitionDefault ? formatCurrency(roiCalculation.totalStudyCost) : "Tuition assumption needed"}
+            value={hasTuitionDefault ? formatCurrency(roiCalculation.totalStudyCost) : tx("Tuition assumption needed")}
           />
           <RoiMiniMetric
             label="After-tax income"
-            value={hasSalaryDefault ? formatCurrency(roiCalculation.afterTaxIncome) : "Salary assumption needed"}
+            value={hasSalaryDefault ? formatCurrency(roiCalculation.afterTaxIncome) : tx("Salary assumption needed")}
           />
           <RoiMiniMetric
             label="Free cash flow"
-            value={hasSalaryDefault ? formatCurrency(roiCalculation.annualFreeCashFlow) : "Salary assumption needed"}
+            value={hasSalaryDefault ? formatCurrency(roiCalculation.annualFreeCashFlow) : tx("Salary assumption needed")}
           />
           <RoiMiniMetric
             label="ROI status"
             value={
               !hasTuitionDefault
-                ? "Payback unavailable — tuition assumption needed."
+                ? tx("Payback unavailable — tuition assumption needed.")
                 : hasSalaryDefault
-                ? formatPayback(
+                ? tx(formatPayback(
                     roiCalculation.riskAdjustedPaybackPeriodYears,
                     "Not recovered after risk adjustment."
-                  )
-                : "Salary assumption needed"
+                  ))
+                : tx("Salary assumption needed")
             }
           />
         </div>
@@ -311,33 +316,33 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
             <span
               className={`mr-2 inline-block rounded-md border px-2.5 py-1 text-xs font-semibold ${dataLabelClasses[roiProfile.startingSalary.dataLabel]}`}
             >
-              {roiProfile.startingSalary.dataLabel}
+              {tx(roiProfile.startingSalary.dataLabel)}
             </span>
           ) : null}
-          Salary basis: {roiProfile.startingSalary.note}
+          {tx("Salary basis")}: {tx(roiProfile.startingSalary.note ?? "No source attached")}
         </p>
         <p className="mt-1 text-xs leading-5 text-stone-600">
           {roiProfile.laterCareerSalary.dataLabel ? (
             <span
               className={`mr-2 inline-block rounded-md border px-2.5 py-1 text-xs font-semibold ${dataLabelClasses[roiProfile.laterCareerSalary.dataLabel]}`}
             >
-              {roiProfile.laterCareerSalary.dataLabel}
+              {tx(roiProfile.laterCareerSalary.dataLabel)}
             </span>
           ) : null}
-          Later-career reference: {roiProfile.laterCareerSalary.note}
+          {tx("Later-career reference")}: {tx(roiProfile.laterCareerSalary.note ?? "No source attached")}
         </p>
         {roiProfile.trainingNote ? (
           <p className="mt-2 rounded-md border border-coral/30 bg-coral/10 p-3 text-xs leading-5 text-stone-700">
-            Registration/training warning: {roiProfile.trainingNote} This version models high-school direct-entry pathways only, not graduate-entry pathways.
+            {tx("Registration/training warning")}: {tx(roiProfile.trainingNote)} {tx("This version models high-school direct-entry pathways only, not graduate-entry pathways.")}
           </p>
         ) : null}
       </div>
 
       <div className="mt-5 rounded-lg border border-stone-200 bg-white p-4">
-        <h3 className="text-sm font-semibold text-ink">Warnings you should not ignore</h3>
+        <h3 className="text-sm font-semibold text-ink">{tx("Warnings you should not ignore")}</h3>
         <ul className="mt-3 space-y-2 text-sm leading-6 text-stone-700">
           {recommendation.warnings.map((warning) => (
-            <li key={warning}>{warning}</li>
+            <li key={warning}>{tx(warning)}</li>
           ))}
         </ul>
       </div>
@@ -364,9 +369,11 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
 }
 
 function RoiMiniMetric({ label, value }: { label: string; value: string }) {
+  const { tx } = useI18n();
+
   return (
     <div className="rounded-md border border-stone-200 bg-white p-3">
-      <p className="text-xs font-semibold uppercase text-stone-500">{label}</p>
+      <p className="text-xs font-semibold uppercase text-stone-500">{tx(label)}</p>
       <p className="mt-2 text-base font-bold text-ink">{value}</p>
     </div>
   );

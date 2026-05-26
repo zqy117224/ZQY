@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { PathwayCard } from "@/components/pathway-card";
@@ -9,6 +11,7 @@ import { majors, type Major } from "@/data/majors";
 import { getRoiProfile } from "@/data/roiDefaults";
 import { formatCurrency, formatPercent, qualityLabels } from "@/lib/roi";
 import { type SearchParams } from "@/lib/recommendations";
+import { useI18n } from "@/lib/i18n";
 import { type SourcedNumber } from "@/types/roi";
 
 const defaultMajorIds = [
@@ -21,75 +24,76 @@ const defaultMajorIds = [
 
 const comparisonRows: {
   label: string;
-  getValue: (major: Major) => ReactNode;
+  getValue: (major: Major, tx: (text: string) => string) => ReactNode;
 }[] = [
   {
     label: "Go8 entries",
-    getValue: (major) =>
+    getValue: (major, tx) =>
       major.go8Entries.map((entry) => (
         <div key={`${major.id}-${entry.university}`} className="mb-4 last:mb-0">
           <p className="font-semibold text-ink">{entry.university}</p>
           <p>{entry.courseName}</p>
           <p>
-            <span className="font-semibold">ATAR:</span> {entry.atarValue} ({entry.atarType}, {entry.year})
+            <span className="font-semibold">{tx("ATAR")}:</span> {entry.atarValue} ({tx(entry.atarType)}, {entry.year})
           </p>
           <p>
-            <span className="font-semibold">Requirement type:</span> {entry.requirementType}
+            <span className="font-semibold">{tx("Requirement type")}:</span> {tx(entry.requirementType)}
           </p>
           <ul className="mt-1 list-inside list-disc">
             {entry.subjectRequirements.map((requirement) => (
-              <li key={requirement}>{requirement}</li>
+              <li key={requirement}>{tx(requirement)}</li>
             ))}
           </ul>
-          <p className="mt-1">{entry.notes}</p>
+          <p className="mt-1">{tx(entry.notes)}</p>
           <a href={entry.sourceLink} className="text-leaf underline underline-offset-2">
-            Source checked {entry.lastChecked}
+            {tx(`Source checked ${entry.lastChecked}`)}
           </a>
         </div>
       ))
   },
   {
     label: "Graduate roles",
-    getValue: (major) => major.graduateOutcomes.typicalGraduateRoles.join(", ")
+    getValue: (major, tx) => major.graduateOutcomes.typicalGraduateRoles.map(tx).join(", ")
   },
-  { label: "Graduate salary evidence", getValue: (major) => major.graduateOutcomes.salaryRange },
+  { label: "Graduate salary evidence", getValue: (major, tx) => tx(major.graduateOutcomes.salaryRange) },
   {
     label: "ROI calculator defaults",
-    getValue: (major) => {
+    getValue: (major, tx) => {
       const profile = getRoiProfile(major.id);
 
       return (
         <div className="space-y-2">
-          <p>Study years: {formatSourcedNumber(profile.studyYears)}</p>
-          <p>Tuition per year: {formatSourcedNumber(profile.tuitionPerYear)}</p>
-          <p>Starting salary: {formatSourcedNumber(profile.startingSalary, "salary")}</p>
-          <p>Later-career salary reference: {formatSourcedNumber(profile.laterCareerSalary, "salary")}</p>
-          <p>Employment probability: {formatSourcedNumber(profile.employmentProbability)}</p>
+          <p>{tx("Study years")}: {formatSourcedNumber(profile.studyYears, tx)}</p>
+          <p>{tx("Tuition per year")}: {formatSourcedNumber(profile.tuitionPerYear, tx)}</p>
+          <p>{tx("Starting salary")}: {formatSourcedNumber(profile.startingSalary, tx, "salary")}</p>
+          <p>{tx("Later-career salary reference")}: {formatSourcedNumber(profile.laterCareerSalary, tx, "salary")}</p>
+          <p>{tx("Employment probability")}: {formatSourcedNumber(profile.employmentProbability, tx)}</p>
           <Link href={`/roi?pathway=${major.id}`} className="inline-block text-leaf underline underline-offset-2">
-            Open ROI calculator
+            {tx("Open ROI calculator")}
           </Link>
         </div>
       );
     }
   },
-  { label: "Employment outlook", getValue: (major) => major.graduateOutcomes.employmentOutlook },
+  { label: "Employment outlook", getValue: (major, tx) => tx(major.graduateOutcomes.employmentOutlook) },
   {
     label: "Further study common?",
-    getValue: (major) => (major.graduateOutcomes.furtherStudyCommon ? "Yes" : "Not usually")
+    getValue: (major, tx) => (major.graduateOutcomes.furtherStudyCommon ? tx("Yes") : tx("Not usually"))
   },
   {
     label: "Related occupations",
-    getValue: (major) => major.occupationOutcomes.relatedOccupations.join(", ")
+    getValue: (major, tx) => major.occupationOutcomes.relatedOccupations.map(tx).join(", ")
   },
-  { label: "Work style", getValue: (major) => major.occupationOutcomes.workStyle },
-  { label: "Working hours", getValue: (major) => major.occupationOutcomes.workingHours },
-  { label: "Job environment", getValue: (major) => major.occupationOutcomes.jobEnvironment },
-  { label: "Typical tasks", getValue: (major) => major.occupationOutcomes.typicalTasks },
-  { label: "Trade-offs", getValue: (major) => major.occupationOutcomes.tradeOffs },
-  { label: "Risk notes", getValue: (major) => major.occupationOutcomes.riskNotes }
+  { label: "Work style", getValue: (major, tx) => tx(major.occupationOutcomes.workStyle) },
+  { label: "Working hours", getValue: (major, tx) => tx(major.occupationOutcomes.workingHours) },
+  { label: "Job environment", getValue: (major, tx) => tx(major.occupationOutcomes.jobEnvironment) },
+  { label: "Typical tasks", getValue: (major, tx) => tx(major.occupationOutcomes.typicalTasks) },
+  { label: "Trade-offs", getValue: (major, tx) => tx(major.occupationOutcomes.tradeOffs) },
+  { label: "Risk notes", getValue: (major, tx) => tx(major.occupationOutcomes.riskNotes) }
 ];
 
 export default function ComparisonPage({ searchParams }: { searchParams: SearchParams }) {
+  const { tx } = useI18n();
   const selectedIds = getSelectedMajorIds(searchParams);
   const selectedMajors = majors.filter((major) => selectedIds.includes(major.id));
 
@@ -102,9 +106,9 @@ export default function ComparisonPage({ searchParams }: { searchParams: SearchP
       />
 
       <form action="/comparison" className="card mt-8">
-        <h2 className="text-xl font-semibold text-ink">Choose majors</h2>
+        <h2 className="text-xl font-semibold text-ink">{tx("Choose majors")}</h2>
         <p className="mt-2 field-help">
-          Fewer columns are easier to read on mobile and make trade-offs clearer.
+          {tx("Fewer columns are easier to read on mobile and make trade-offs clearer.")}
         </p>
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {majors.map((major) => (
@@ -118,7 +122,7 @@ export default function ComparisonPage({ searchParams }: { searchParams: SearchP
                 value={major.id}
                 defaultChecked={selectedIds.includes(major.id)}
               />
-              <span>{major.name}</span>
+              <span>{tx(major.name)}</span>
             </label>
           ))}
         </div>
@@ -126,7 +130,7 @@ export default function ComparisonPage({ searchParams }: { searchParams: SearchP
           type="submit"
           className="mt-5 rounded-md bg-leaf px-5 py-3 text-sm font-semibold text-white transition hover:bg-leaf/90"
         >
-          Update comparison
+          {tx("Update comparison")}
         </button>
       </form>
 
@@ -145,21 +149,21 @@ export default function ComparisonPage({ searchParams }: { searchParams: SearchP
       <section className="mt-12">
         <details className="rounded-lg border border-stone-200 bg-white p-5" open>
           <summary className="cursor-pointer text-lg font-semibold text-ink">
-            Detailed comparison table
+            {tx("Detailed comparison table")}
           </summary>
           <p className="mt-3 text-sm leading-6 text-stone-700">
-            This layer keeps the raw evidence visible when you need depth. On small screens, scroll horizontally and focus on two or three majors at a time.
+            {tx("This layer keeps the raw evidence visible when you need depth. On small screens, scroll horizontally and focus on two or three majors at a time.")}
           </p>
           <div className="mt-6 overflow-x-auto rounded-lg border border-stone-200 bg-white shadow-soft">
             <table className="min-w-[980px] border-collapse text-left text-sm">
               <thead>
                 <tr className="bg-skywash">
                   <th className="w-52 border-b border-stone-200 p-4 font-semibold text-ink">
-                    Criteria
+                    {tx("Criteria")}
                   </th>
                   {selectedMajors.map((major) => (
                     <th key={major.id} className="border-b border-stone-200 p-4 font-semibold text-ink">
-                      {major.name}
+                      {tx(major.name)}
                     </th>
                   ))}
                 </tr>
@@ -167,10 +171,10 @@ export default function ComparisonPage({ searchParams }: { searchParams: SearchP
               <tbody>
                 {comparisonRows.map((row) => (
                   <tr key={row.label} className="border-b border-stone-200 last:border-b-0">
-                    <th className="bg-stone-50 p-4 align-top font-semibold text-ink">{row.label}</th>
+                    <th className="bg-stone-50 p-4 align-top font-semibold text-ink">{tx(row.label)}</th>
                     {selectedMajors.map((major) => (
                       <td key={`${major.id}-${row.label}`} className="max-w-xs p-4 align-top text-stone-700">
-                        {row.getValue(major)}
+                        {row.getValue(major, tx)}
                       </td>
                     ))}
                   </tr>
@@ -185,6 +189,7 @@ export default function ComparisonPage({ searchParams }: { searchParams: SearchP
 }
 
 function MajorSummaryCard({ major }: { major: Major }) {
+  const { tx } = useI18n();
   const roiProfile = getRoiProfile(major.id);
 
   return (
@@ -222,21 +227,21 @@ function MajorSummaryCard({ major }: { major: Major }) {
 
         <div className="space-y-4">
           <div className="rounded-lg border border-stone-200 bg-stone-50 p-4 text-sm leading-6 text-stone-700">
-            <p className="font-semibold text-ink">Main trade-off</p>
-            <p className="mt-2">{major.occupationOutcomes.tradeOffs}</p>
+            <p className="font-semibold text-ink">{tx("Main trade-off")}</p>
+            <p className="mt-2">{tx(major.occupationOutcomes.tradeOffs)}</p>
           </div>
           <div className="rounded-lg border border-stone-200 bg-stone-50 p-4 text-sm leading-6 text-stone-700">
-            <p className="font-semibold text-ink">Main warning</p>
-            <p className="mt-2">{major.occupationOutcomes.riskNotes}</p>
+            <p className="font-semibold text-ink">{tx("Main warning")}</p>
+            <p className="mt-2">{tx(major.occupationOutcomes.riskNotes)}</p>
           </div>
           <div className="rounded-lg border border-stone-200 bg-stone-50 p-4 text-sm leading-6 text-stone-700">
-            <p className="font-semibold text-ink">Financial defaults</p>
-            <p className="mt-2">Study years: {formatSourcedNumber(roiProfile.studyYears)}</p>
-            <p>Tuition per year: {formatSourcedNumber(roiProfile.tuitionPerYear)}</p>
-            <p>Starting salary: {formatSourcedNumber(roiProfile.startingSalary, "salary")}</p>
-            <p>Later-career salary reference: {formatSourcedNumber(roiProfile.laterCareerSalary, "salary")}</p>
+            <p className="font-semibold text-ink">{tx("Financial defaults")}</p>
+            <p className="mt-2">{tx("Study years")}: {formatSourcedNumber(roiProfile.studyYears, tx)}</p>
+            <p>{tx("Tuition per year")}: {formatSourcedNumber(roiProfile.tuitionPerYear, tx)}</p>
+            <p>{tx("Starting salary")}: {formatSourcedNumber(roiProfile.startingSalary, tx, "salary")}</p>
+            <p>{tx("Later-career salary reference")}: {formatSourcedNumber(roiProfile.laterCareerSalary, tx, "salary")}</p>
             <Link href={`/roi?pathway=${major.id}`} className="mt-2 inline-block text-leaf underline underline-offset-2">
-              Open ROI calculator
+              {tx("Open ROI calculator")}
             </Link>
           </div>
         </div>
@@ -244,16 +249,16 @@ function MajorSummaryCard({ major }: { major: Major }) {
 
       <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr]">
         <div className="rounded-lg border border-stone-200 bg-white p-4">
-          <h3 className="text-sm font-semibold text-ink">Go8 course rows</h3>
+          <h3 className="text-sm font-semibold text-ink">{tx("Go8 course rows")}</h3>
           <div className="mt-3 space-y-3">
             {major.go8Entries.map((entry) => (
               <div key={`${entry.university}-${entry.courseName}`} className="rounded-md bg-stone-50 p-3 text-sm leading-6 text-stone-700">
                 <p className="font-semibold text-ink">{entry.university}</p>
                 <p>{entry.courseName}</p>
                 <p>
-                  ATAR signal: {entry.atarValue} ({entry.atarType}, {entry.year})
+                  {tx("ATAR signal")}: {entry.atarValue} ({tx(entry.atarType)}, {entry.year})
                 </p>
-                <p>Requirement type: {entry.requirementType}</p>
+                <p>{tx("Requirement type")}: {tx(entry.requirementType)}</p>
               </div>
             ))}
           </div>
@@ -261,7 +266,7 @@ function MajorSummaryCard({ major }: { major: Major }) {
 
         <details className="rounded-lg border border-stone-200 bg-white p-4">
           <summary className="cursor-pointer text-sm font-semibold text-ink">
-            Source metadata
+            {tx("Source metadata")}
           </summary>
           <div className="mt-4 grid gap-4">
             <SourceNote
@@ -338,20 +343,24 @@ function getSelectedMajorIds(searchParams: SearchParams) {
   return validIds.length > 0 ? validIds : defaultMajorIds;
 }
 
-function formatSourcedNumber(value: SourcedNumber, context?: "salary") {
+function formatSourcedNumber(
+  value: SourcedNumber,
+  tx: (text: string) => string,
+  context?: "salary"
+) {
   if (value.value === null) {
     return context === "salary"
-      ? `Salary assumption needed (${qualityLabels[value.quality]})`
-      : `Missing (${qualityLabels[value.quality]})`;
+      ? `${tx("Salary assumption needed")} (${tx(qualityLabels[value.quality])})`
+      : `${tx("Missing")} (${tx(qualityLabels[value.quality])})`;
   }
 
   if (value.unit.startsWith("AUD")) {
-    return `${formatCurrency(value.value)} (${qualityLabels[value.quality]})`;
+    return `${formatCurrency(value.value)} (${tx(qualityLabels[value.quality])})`;
   }
 
   if (value.unit === "decimal") {
-    return `${formatPercent(value.value)} (${qualityLabels[value.quality]})`;
+    return `${formatPercent(value.value)} (${tx(qualityLabels[value.quality])})`;
   }
 
-  return `${value.value} ${value.unit} (${qualityLabels[value.quality]})`;
+  return `${value.value} ${tx(value.unit)} (${tx(qualityLabels[value.quality])})`;
 }

@@ -21,6 +21,7 @@ import {
   qualityClasses,
   qualityLabels
 } from "@/lib/roi";
+import { useI18n } from "@/lib/i18n";
 import { type RoiAssumptions, type RoiInputKey } from "@/types/roi";
 
 type RoiPageProps = {
@@ -28,6 +29,7 @@ type RoiPageProps = {
 };
 
 export default function RoiPage({ searchParams }: RoiPageProps) {
+  const { tx } = useI18n();
   const initialPathwayId = getInitialPathwayId(searchParams.pathway);
   const [pathwayId, setPathwayId] = useState(initialPathwayId);
   const [assumptions, setAssumptions] = useState(() =>
@@ -77,13 +79,13 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
           href={`/comparison?majors=${pathwayId}`}
           className="rounded-md border border-stone-300 bg-white px-4 py-3 text-center text-sm font-semibold text-ink transition hover:border-leaf hover:text-leaf"
         >
-          Compare this pathway
+          {tx("Compare this pathway")}
         </Link>
       </div>
 
       <div className="mb-8 rounded-lg border border-stone-200 bg-white p-5 shadow-soft">
         <label className="block">
-          <span className="field-label">Pathway selector</span>
+          <span className="field-label">{tx("Pathway selector")}</span>
           <select
             className="input-box mt-2"
             value={pathwayId}
@@ -91,36 +93,34 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
           >
             {majors.map((major) => (
               <option key={major.id} value={major.id}>
-                {major.name}
+                {tx(major.name)}
               </option>
             ))}
           </select>
         </label>
         <p className="mt-3 text-sm leading-6 text-stone-700">
-          {selectedMajor.summary} Defaults use pathway-specific salary evidence where available,
-          representative Monash course fee or duration data where sourced, and clearly labelled
-          assumptions or missing states where no reliable pathway-specific salary default is available.
+          {tx(selectedMajor.summary)} {tx("Defaults use pathway-specific salary evidence where available, representative Monash course fee or duration data where sourced, and clearly labelled assumptions or missing states where no reliable pathway-specific salary default is available.")}
         </p>
         {profile.trainingNote ? (
           <div className="mt-4 rounded-lg border border-coral/30 bg-coral/10 p-4 text-sm leading-6 text-stone-700">
-            <p className="font-semibold text-ink">Training and registration warning</p>
-            <p className="mt-1">{profile.trainingNote}</p>
+            <p className="font-semibold text-ink">{tx("Training and registration warning")}</p>
+            <p className="mt-1">{tx(profile.trainingNote)}</p>
             <p className="mt-1">
-              This version calculates high-school direct-entry pathways only. Graduate-entry pathways are not modelled.
+              {tx("This version calculates high-school direct-entry pathways only. Graduate-entry pathways are not modelled.")}
             </p>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
-              <TrainingFact label="University study cost period" value={`${profile.studyYears.value ?? "?"} years`} />
+              <TrainingFact label="University study cost period" value={tx(`${profile.studyYears.value ?? "?"} years`)} />
               <TrainingFact
                 label={
                   profile.professionalPathwayYears
                     ? "Professional pathway"
                     : "Time to general registration"
                 }
-                value={formatProfessionalTime(profile)}
+                value={tx(formatProfessionalTime(profile))}
               />
               <TrainingFact
                 label="Registration"
-                value={profile.registrationRequired ? "Required for practice" : "Check pathway requirements"}
+                value={profile.registrationRequired ? tx("Required for practice") : tx("Check pathway requirements")}
               />
             </div>
           </div>
@@ -141,13 +141,13 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
           <div className="grid gap-4 sm:grid-cols-2">
             <RoiResultCard
               title="Total study cost"
-              value={tuitionAssumptionNeeded ? "Tuition assumption needed" : formatCurrency(calculation.totalStudyCost)}
+              value={tuitionAssumptionNeeded ? tx("Tuition assumption needed") : formatCurrency(calculation.totalStudyCost)}
               note="University study cost only: tuition, study-period living costs, other study costs, and opportunity cost."
               tone={tuitionAssumptionNeeded ? "warning" : "default"}
             />
             <RoiResultCard
               title="Estimated after-tax income"
-              value={salaryAssumptionNeeded ? "Salary assumption needed" : formatCurrency(calculation.afterTaxIncome)}
+              value={salaryAssumptionNeeded ? tx("Salary assumption needed") : formatCurrency(calculation.afterTaxIncome)}
               note={
                 salaryAssumptionNeeded
                   ? "Enter a pathway-specific salary before using income, free cash flow, or payback outputs."
@@ -157,7 +157,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
             />
             <RoiResultCard
               title="Annual free cash flow"
-              value={salaryAssumptionNeeded ? "Salary assumption needed" : formatCurrency(calculation.annualFreeCashFlow)}
+              value={salaryAssumptionNeeded ? tx("Salary assumption needed") : formatCurrency(calculation.annualFreeCashFlow)}
               note="After-tax income minus annual living costs and other annual costs."
               tone={salaryAssumptionNeeded || calculation.annualFreeCashFlow <= 0 ? "warning" : "default"}
             />
@@ -165,10 +165,10 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
               title="Payback period"
               value={
                 salaryAssumptionNeeded
-                  ? "Salary assumption needed"
+                  ? tx("Salary assumption needed")
                   : tuitionAssumptionNeeded
-                    ? "Payback unavailable — tuition assumption needed."
-                  : formatPayback(calculation.paybackPeriodYears, "Not recovered under current assumptions.")
+                    ? tx("Payback unavailable — tuition assumption needed.")
+                  : formatPayback(calculation.paybackPeriodYears, tx("Not recovered under current assumptions."))
               }
               note="Total study cost divided by annual free cash flow."
               tone={salaryAssumptionNeeded || tuitionAssumptionNeeded || calculation.paybackPeriodYears === null ? "warning" : "default"}
@@ -177,12 +177,12 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
               title="Risk-adjusted payback"
               value={
                 salaryAssumptionNeeded
-                  ? "Salary assumption needed"
+                  ? tx("Salary assumption needed")
                   : tuitionAssumptionNeeded
-                    ? "Payback unavailable — tuition assumption needed."
+                    ? tx("Payback unavailable — tuition assumption needed.")
                   : formatPayback(
                       calculation.riskAdjustedPaybackPeriodYears,
-                      "Not recovered after risk adjustment."
+                      tx("Not recovered after risk adjustment.")
                     )
               }
               note={`Uses ${formatPercent(assumptions.employmentProbability)} employment probability and fallback income.`}
@@ -192,7 +192,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
               title="10-year free cash flow"
               value={
                 salaryAssumptionNeeded
-                  ? "Salary assumption needed"
+                  ? tx("Salary assumption needed")
                   : formatCurrency(calculation.cumulativeFreeCashFlow10Years)
               }
               note="Cumulative employed free cash flow after graduation using the salary growth input."
@@ -201,9 +201,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
           </div>
 
           <div className="rounded-lg border border-stone-200 bg-skywash p-5 text-sm leading-6 text-stone-700">
-            This tool is for education planning only. It is not financial, tax, migration,
-            admissions, or career advice. Outcomes vary by individual, visa status, labour market
-            conditions, and location.
+            {tx("This tool is for education planning only. It is not financial, tax, migration, admissions, or career advice. Outcomes vary by individual, visa status, labour market conditions, and location.")}
           </div>
         </div>
       </div>
@@ -211,15 +209,15 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
       <section className="mt-10">
         {salaryAssumptionNeeded || tuitionAssumptionNeeded ? (
           <div className="rounded-lg border border-coral/30 bg-coral/10 p-5 text-sm leading-6 text-stone-700">
-            <h2 className="text-lg font-semibold text-ink">Scenario comparison needs more inputs</h2>
+            <h2 className="text-lg font-semibold text-ink">{tx("Scenario comparison needs more inputs")}</h2>
             <p className="mt-2">
               {salaryAssumptionNeeded
-                ? "Enter a salary in the income panel. "
+                ? tx("Enter a salary in the income panel. ")
                 : ""}
               {tuitionAssumptionNeeded
-                ? "Payback unavailable — tuition assumption needed. Enter annual tuition before using study cost, payback, and scenario outputs. "
+                ? tx("Payback unavailable — tuition assumption needed. Enter annual tuition before using study cost, payback, and scenario outputs. ")
                 : ""}
-              This version models high-school direct-entry pathways only, not graduate-entry pathways.
+              {tx("This version models high-school direct-entry pathways only, not graduate-entry pathways.")}
             </p>
           </div>
         ) : (
@@ -239,10 +237,12 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
 }
 
 function TrainingFact({ label, value }: { label: string; value: string }) {
+  const { tx } = useI18n();
+
   return (
     <div className="rounded-md bg-white p-3">
-      <p className="text-xs font-semibold uppercase text-stone-500">{label}</p>
-      <p className="mt-1 font-semibold text-ink">{value}</p>
+      <p className="text-xs font-semibold uppercase text-stone-500">{tx(label)}</p>
+      <p className="mt-1 font-semibold text-ink">{tx(value)}</p>
     </div>
   );
 }
@@ -264,23 +264,24 @@ function formatProfessionalTime(profile: ReturnType<typeof getRoiProfile>) {
 }
 
 function SalaryAuditPanel({ audit }: { audit: ReturnType<typeof auditRoiSalaryDefaults> }) {
+  const { tx } = useI18n();
+
   return (
     <details className="rounded-lg border border-stone-200 bg-white p-5 shadow-soft">
-      <summary className="cursor-pointer text-lg font-semibold text-ink">Salary default audit</summary>
+      <summary className="cursor-pointer text-lg font-semibold text-ink">{tx("Salary default audit")}</summary>
       <p className="mt-3 text-sm leading-6 text-stone-700">
-        This check lists the salary input status for every pathway and flags duplicate salary defaults.
-        Missing rows require a user-entered salary before ROI income and payback outputs are meaningful.
+        {tx("This check lists the salary input status for every pathway and flags duplicate salary defaults. Missing rows require a user-entered salary before ROI income and payback outputs are meaningful.")}
       </p>
 
       {audit.duplicateWarnings.length > 0 ? (
         <div className="mt-4 rounded-lg border border-coral/30 bg-coral/10 p-4 text-sm leading-6 text-stone-700">
           {audit.duplicateWarnings.map((warning) => (
-            <p key={warning.key}>{warning.message}</p>
+            <p key={warning.key}>{tx(warning.message)}</p>
           ))}
         </div>
       ) : (
         <div className="mt-4 rounded-lg border border-leaf/30 bg-leaf/10 p-4 text-sm leading-6 text-stone-700">
-          No duplicate numeric salary defaults are currently active across pathways.
+          {tx("No duplicate numeric salary defaults are currently active across pathways.")}
         </div>
       )}
 
@@ -288,48 +289,48 @@ function SalaryAuditPanel({ audit }: { audit: ReturnType<typeof auditRoiSalaryDe
         <table className="min-w-[760px] w-full border-collapse text-left text-sm">
           <thead>
             <tr className="bg-skywash">
-              <th className="border-b border-stone-200 p-3 font-semibold text-ink">Pathway</th>
-              <th className="border-b border-stone-200 p-3 font-semibold text-ink">Salary input</th>
-              <th className="border-b border-stone-200 p-3 font-semibold text-ink">Employment</th>
-              <th className="border-b border-stone-200 p-3 font-semibold text-ink">Later-career / occupation</th>
-              <th className="border-b border-stone-200 p-3 font-semibold text-ink">Quality</th>
-              <th className="border-b border-stone-200 p-3 font-semibold text-ink">Source / note</th>
+              <th className="border-b border-stone-200 p-3 font-semibold text-ink">{tx("Pathway")}</th>
+              <th className="border-b border-stone-200 p-3 font-semibold text-ink">{tx("Salary input")}</th>
+              <th className="border-b border-stone-200 p-3 font-semibold text-ink">{tx("Employment")}</th>
+              <th className="border-b border-stone-200 p-3 font-semibold text-ink">{tx("Later-career / occupation")}</th>
+              <th className="border-b border-stone-200 p-3 font-semibold text-ink">{tx("Quality")}</th>
+              <th className="border-b border-stone-200 p-3 font-semibold text-ink">{tx("Source / note")}</th>
             </tr>
           </thead>
           <tbody>
             {audit.rows.map((row) => (
               <tr key={row.pathwayId} className="border-b border-stone-200 last:border-b-0">
-                <td className="p-3 font-semibold text-ink">{row.pathwayName}</td>
+                <td className="p-3 font-semibold text-ink">{tx(row.pathwayName)}</td>
                 <td className="p-3 text-stone-700">
-                  {row.value === null ? "Salary assumption needed" : formatCurrency(row.value)}
+                  {row.value === null ? tx("Salary assumption needed") : formatCurrency(row.value)}
                 </td>
                 <td className="p-3 text-stone-700">
-                  {row.employmentProbability === null ? "Missing" : formatPercent(row.employmentProbability)}
+                  {row.employmentProbability === null ? tx("Missing") : formatPercent(row.employmentProbability)}
                 </td>
                 <td className="p-3 text-stone-700">
-                  <p>Later-career: {row.laterCareerSalary === null ? "Missing" : formatCurrency(row.laterCareerSalary)}</p>
+                  <p>{tx("Later-career")}: {row.laterCareerSalary === null ? tx("Missing") : formatCurrency(row.laterCareerSalary)}</p>
                   <p className="mt-1 text-xs leading-5 text-stone-600">
-                    JSA occupation median:{" "}
-                    {row.occupationMedianSalary === null ? "Missing" : formatCurrency(row.occupationMedianSalary)}
+                    {tx("JSA occupation median")}:{" "}
+                    {row.occupationMedianSalary === null ? tx("Missing") : formatCurrency(row.occupationMedianSalary)}
                   </p>
                 </td>
                 <td className="p-3">
                   <span
                     className={`inline-block rounded-md border px-2.5 py-1 text-xs font-semibold ${qualityClasses[row.quality]}`}
                   >
-                    {qualityLabels[row.quality]}
+                    {tx(qualityLabels[row.quality])}
                   </span>
                   {row.dataLabel ? (
                     <span
                       className={`ml-2 inline-block rounded-md border px-2.5 py-1 text-xs font-semibold ${dataLabelClasses[row.dataLabel]}`}
                     >
-                      {row.dataLabel}
+                      {tx(row.dataLabel)}
                     </span>
                   ) : null}
                 </td>
                 <td className="p-3 text-stone-700">
-                  <p>{row.sourceName ?? "No source attached"}</p>
-                  <p className="mt-1 text-xs leading-5 text-stone-600">{row.note}</p>
+                  <p>{row.sourceName ? tx(row.sourceName) : tx("No source attached")}</p>
+                  <p className="mt-1 text-xs leading-5 text-stone-600">{tx(row.note ?? "No source attached")}</p>
                 </td>
               </tr>
             ))}

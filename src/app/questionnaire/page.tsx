@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ProfileSummaryCard } from "@/components/profile-summary-card";
 import { SectionHeader } from "@/components/section-header";
 import { vceSubjects } from "@/data/majors";
+import { useI18n } from "@/lib/i18n";
 
 const schoolLevels = [
   ["year-10", "Year 10 or below"],
@@ -14,6 +15,7 @@ const schoolLevels = [
 ];
 
 export default function QuestionnairePage() {
+  const { tx } = useI18n();
   const [studentType, setStudentType] = useState("domestic");
   const [workPreference, setWorkPreference] = useState("mix");
   const [priority, setPriority] = useState("stability");
@@ -77,30 +79,30 @@ export default function QuestionnairePage() {
       />
 
       <div className="mt-4 rounded-lg border border-stone-200 bg-skywash p-4 text-sm leading-6 text-stone-700">
-        Your answers are processed locally in your browser. Some selections may appear in the page URL so results can be shared or refreshed.
+        {tx("Your answers are processed locally in your browser. Some selections may appear in the page URL so results can be shared or refreshed.")}
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
         <form action="/results" className="space-y-6">
           <section className="card">
-            <h2 className="text-xl font-semibold text-ink">Student background</h2>
+            <h2 className="text-xl font-semibold text-ink">{tx("Student background")}</h2>
             <p className="mt-2 field-help">
-              Start with your study stage and application context.
+              {tx("Start with your study stage and application context.")}
             </p>
             <div className="mt-5 grid gap-5 md:grid-cols-3">
               <label className="space-y-2">
-                <span className="field-label">Current stage</span>
+                <span className="field-label">{tx("Current stage")}</span>
                 <select name="schoolLevel" defaultValue="year-12" className="input-box">
                   {schoolLevels.map(([value, label]) => (
                     <option key={value} value={value}>
-                      {label}
+                      {tx(label)}
                     </option>
                   ))}
                 </select>
               </label>
 
               <div className="space-y-2">
-                <span className="field-label">Studying in Australia?</span>
+                <span className="field-label">{tx("Studying in Australia?")}</span>
                 <RadioGroup
                   name="studyingInAustralia"
                   options={[
@@ -113,7 +115,7 @@ export default function QuestionnairePage() {
               </div>
 
               <div className="space-y-2">
-                <span className="field-label">Student type</span>
+                <span className="field-label">{tx("Student type")}</span>
                 <RadioGroup
                   name="studentType"
                   options={[
@@ -129,9 +131,9 @@ export default function QuestionnairePage() {
           </section>
 
           <section className="card">
-            <h2 className="text-xl font-semibold text-ink">Subjects and academic signals</h2>
+            <h2 className="text-xl font-semibold text-ink">{tx("Subjects and academic signals")}</h2>
             <p className="mt-2 field-help">
-              Select the subjects you are taking, then mark where you currently feel strongest and weakest.
+              {tx("Select the subjects you are taking, then mark where you currently feel strongest and weakest.")}
             </p>
             <CheckboxGrid name="vceSubjects" label="VCE subjects" subjects={vceSubjects} />
             <CheckboxGrid name="strongestSubjects" label="Strongest subjects" subjects={vceSubjects} />
@@ -139,13 +141,13 @@ export default function QuestionnairePage() {
           </section>
 
           <section className="card">
-            <h2 className="text-xl font-semibold text-ink">Work preferences and trade-offs</h2>
+            <h2 className="text-xl font-semibold text-ink">{tx("Work preferences and trade-offs")}</h2>
             <p className="mt-2 field-help">
-              Tell the tool what kind of work pressure, location, and lifestyle trade-off you can accept.
+              {tx("Tell the tool what kind of work pressure, location, and lifestyle trade-off you can accept.")}
             </p>
             <div className="mt-5 grid gap-5 md:grid-cols-2">
               <div className="space-y-2">
-                <span className="field-label">Comfortable with competitive graduate paths?</span>
+                <span className="field-label">{tx("Comfortable with competitive graduate paths?")}</span>
                 <RadioGroup
                   name="highCompetition"
                   options={[
@@ -159,7 +161,7 @@ export default function QuestionnairePage() {
               </div>
 
               <div className="space-y-2">
-                <span className="field-label">Can accept regional, remote, or FIFO work?</span>
+                <span className="field-label">{tx("Can accept regional, remote, or FIFO work?")}</span>
                 <RadioGroup
                   name="remoteWork"
                   options={[
@@ -173,58 +175,58 @@ export default function QuestionnairePage() {
               </div>
 
               <label className="space-y-2">
-                <span className="field-label">Preferred salary level</span>
+                <span className="field-label">{tx("Preferred salary level")}</span>
                 <select name="preferredSalary" defaultValue="flexible" className="input-box">
-                  <option value="flexible">Flexible</option>
-                  <option value="moderate">Moderate is fine</option>
-                  <option value="high">High</option>
-                  <option value="very-high">Very high</option>
+                  <option value="flexible">{tx("Flexible")}</option>
+                  <option value="moderate">{tx("Moderate is fine")}</option>
+                  <option value="high">{tx("High")}</option>
+                  <option value="very-high">{tx("Very high")}</option>
                 </select>
               </label>
 
               <label className="space-y-2">
-                <span className="field-label">Preferred work-life balance</span>
+                <span className="field-label">{tx("Preferred work-life balance")}</span>
                 <select name="workLifeBalance" defaultValue="balanced" className="input-box">
-                  <option value="important">Very important</option>
-                  <option value="balanced">Balanced</option>
-                  <option value="career-first">Career growth first</option>
+                  <option value="important">{tx("Very important")}</option>
+                  <option value="balanced">{tx("Balanced")}</option>
+                  <option value="career-first">{tx("Career growth first")}</option>
                 </select>
               </label>
 
               <label className="space-y-2">
-                <span className="field-label">Preferred work style</span>
+                <span className="field-label">{tx("Preferred work style")}</span>
                 <select
                   name="workPreference"
                   defaultValue="mix"
                   className="input-box"
                   onChange={(event) => setWorkPreference(event.target.value)}
                 >
-                  <option value="technical">Mostly technical work</option>
-                  <option value="people">Mostly people-facing work</option>
-                  <option value="mix">A mix of both</option>
+                  <option value="technical">{tx("Mostly technical work")}</option>
+                  <option value="people">{tx("Mostly people-facing work")}</option>
+                  <option value="mix">{tx("A mix of both")}</option>
                 </select>
               </label>
 
               <label className="space-y-2">
-                <span className="field-label">Main priority</span>
+                <span className="field-label">{tx("Main priority")}</span>
                 <select
                   name="priority"
                   defaultValue="stability"
                   className="input-box"
                   onChange={(event) => setPriority(event.target.value)}
                 >
-                  <option value="income">Income</option>
-                  <option value="lifestyle">Lifestyle</option>
-                  <option value="stability">Stability</option>
-                  <option value="flexibility">Flexibility</option>
+                  <option value="income">{tx("Income")}</option>
+                  <option value="lifestyle">{tx("Lifestyle")}</option>
+                  <option value="stability">{tx("Stability")}</option>
+                  <option value="flexibility">{tx("Flexibility")}</option>
                 </select>
               </label>
             </div>
           </section>
 
           <section className="card">
-            <h2 className="text-xl font-semibold text-ink">Interest levels</h2>
-            <p className="mt-2 field-help">Use 1 for low interest and 5 for strong interest.</p>
+            <h2 className="text-xl font-semibold text-ink">{tx("Interest levels")}</h2>
+            <p className="mt-2 field-help">{tx("Use 1 for low interest and 5 for strong interest.")}</p>
             <div className="mt-5 grid gap-5 md:grid-cols-2">
               <InterestSlider name="maths" label="Maths" onValueChange={setMaths} />
               <InterestSlider name="physics" label="Physics" />
@@ -239,13 +241,13 @@ export default function QuestionnairePage() {
               type="submit"
               className="rounded-md bg-leaf px-5 py-3 text-sm font-semibold text-white transition hover:bg-leaf/90"
             >
-              Generate decision report
+              {tx("Generate decision report")}
             </button>
             <a
               href="/comparison"
               className="rounded-md border border-stone-300 bg-white px-5 py-3 text-center text-sm font-semibold text-ink transition hover:border-leaf hover:text-leaf"
             >
-              Skip to comparison
+              {tx("Skip to comparison")}
             </a>
           </div>
         </form>
@@ -255,11 +257,11 @@ export default function QuestionnairePage() {
             bullets={profileBullets.length > 0 ? profileBullets : ["Balanced preference profile"]}
           />
           <div className="rounded-lg border border-stone-200 bg-white p-5">
-            <h3 className="text-lg font-semibold text-ink">What the report will do</h3>
+            <h3 className="text-lg font-semibold text-ink">{tx("What the report will do")}</h3>
             <ul className="mt-4 space-y-3 text-sm leading-6 text-stone-700">
-              <li>Rank pathways using transparent, rule-based scoring.</li>
-              <li>Highlight likely upsides, workload, and risk trade-offs.</li>
-              <li>Show Go8 course evidence and occupation sources for deeper comparison.</li>
+              <li>{tx("Rank pathways using transparent, rule-based scoring.")}</li>
+              <li>{tx("Highlight likely upsides, workload, and risk trade-offs.")}</li>
+              <li>{tx("Show Go8 course evidence and occupation sources for deeper comparison.")}</li>
             </ul>
           </div>
         </div>
@@ -279,6 +281,8 @@ function RadioGroup({
   defaultValue: string;
   onValueChange?: (value: string) => void;
 }) {
+  const { tx } = useI18n();
+
   return (
     <div className="flex flex-wrap gap-2">
       {options.map(([value, label]) => (
@@ -293,7 +297,7 @@ function RadioGroup({
             defaultChecked={value === defaultValue}
             onChange={() => onValueChange?.(value)}
           />
-          <span>{label}</span>
+          <span>{tx(label)}</span>
         </label>
       ))}
     </div>
@@ -309,9 +313,11 @@ function CheckboxGrid({
   label: string;
   subjects: string[];
 }) {
+  const { tx } = useI18n();
+
   return (
     <div className="mt-5">
-      <span className="field-label">{label}</span>
+      <span className="field-label">{tx(label)}</span>
       <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {subjects.map((subject) => (
           <label
@@ -319,7 +325,7 @@ function CheckboxGrid({
             className="flex cursor-pointer items-center gap-2 rounded-md border border-stone-300 bg-white px-3 py-2 text-sm"
           >
             <input type="checkbox" name={name} value={subject} />
-            <span>{subject}</span>
+            <span>{tx(subject)}</span>
           </label>
         ))}
       </div>
@@ -336,9 +342,11 @@ function InterestSlider({
   label: string;
   onValueChange?: (value: number) => void;
 }) {
+  const { tx } = useI18n();
+
   return (
     <label className="space-y-2">
-      <span className="field-label">{label}</span>
+      <span className="field-label">{tx(label)}</span>
       <div className="rounded-md border border-stone-300 bg-white p-3">
         <input
           type="range"
@@ -351,9 +359,9 @@ function InterestSlider({
           onChange={(event) => onValueChange?.(Number(event.target.value))}
         />
         <div className="mt-1 flex justify-between text-xs text-stone-500">
-          <span>Low</span>
-          <span>Medium</span>
-          <span>High</span>
+          <span>{tx("Low")}</span>
+          <span>{tx("Medium")}</span>
+          <span>{tx("High")}</span>
         </div>
       </div>
     </label>
