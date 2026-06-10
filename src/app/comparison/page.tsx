@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { PathwayCard } from "@/components/pathway-card";
 import { RiskBadge } from "@/components/risk-badge";
+import { RoiScoreSummary } from "@/components/roi/RoiScoreSummary";
 import { ScoreBar } from "@/components/score-bar";
 import { SectionHeader } from "@/components/section-header";
 import { SourceNote } from "@/components/source-note";
@@ -202,6 +203,7 @@ function MajorSummaryCard({ major }: { major: Major }) {
         risk={major.occupationOutcomes.riskNotes}
         bestFor={buildBestFor(major)}
         notIdealIf={buildNotIdealIf(major)}
+        scoreDetails={<RoiScoreSummary pathwayId={major.id} />}
       />
 
       <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr]">

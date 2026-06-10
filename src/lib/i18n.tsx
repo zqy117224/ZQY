@@ -188,6 +188,13 @@ const zhExact: Record<string, string> = {
   "Default ROI snapshot": "默认投资回报概览",
   "Uses the calculator's current source-backed and editable default inputs. Treat this as a rough planning signal.": "使用计算器当前有来源支持且可编辑的默认输入。请把它当作粗略规划信号。",
   "Open advanced ROI calculator": "打开高级投资回报计算器",
+  "Edit assumptions in ROI calculator": "在投资回报计算器中编辑假设",
+  "Uses AUD 45,000 per year as a conservative Sydney living-cost model assumption.": "使用每年 AUD 45,000 作为悉尼生活成本的保守模型假设。",
+  "Uses AUD 45,000 per year as the Sydney living-cost model assumption. Employed salary rises linearly to the occupation median by year 5.": "使用每年 AUD 45,000 作为悉尼生活成本模型假设；找到工作后，薪资会在第 5 年线性增长至职业中位薪资。",
+  "Sydney living-cost model assumption. Actual living costs vary by housing, lifestyle, location, and personal circumstances.": "悉尼生活成本模型假设。实际生活费会因住房、生活方式、地点和个人情况而不同。",
+  "Uses 90.4% employment probability and fallback income. Employed salary rises linearly from graduate salary to occupation median salary by year 5.": "使用 90.4% 就业概率和备用收入；找到工作后，薪资会从毕业生起薪线性增长，并在第 5 年达到职业中位薪资。",
+  "Cumulative employed free cash flow. Salary rises linearly from graduate salary to occupation median salary by year 5, then remains at the median.": "就业情景下的累计自由现金流。薪资从毕业生起薪线性增长，在第 5 年达到职业中位薪资，此后保持该中位薪资。",
+  "Each scenario starts from the graduate salary input and rises linearly to the mapped occupation median salary by year 5. These are sensitivity tests, not forecasts.": "每个情景都从毕业生起薪开始，并在第 5 年线性增长至映射的职业中位薪资。这些是敏感性测试，不是预测。",
   "Study years": "学习年限",
   "Duration assumption needed": "需要填写学习年限假设",
   "Graduate salary": "毕业生薪资",
@@ -196,6 +203,10 @@ const zhExact: Record<string, string> = {
   "Employment rate": "就业率",
   "Employment assumption needed": "需要填写就业假设",
   "University study cost": "大学学习成本",
+  "Total tuition": "总学费",
+  "Tuition per year multiplied by study years. Living costs are excluded.": "每年学费乘以学习年限，不包含生活费。",
+  "Includes tuition and AUD 45,000 per study year for living costs.": "包含学费，以及学习期间每年 AUD 45,000 的生活费。",
+  "Includes tuition, study-period living costs, other study costs, and opportunity cost.": "包含学费、学习期间生活费、其他学习成本和机会成本。",
   "After-tax income": "税后收入",
   "Free cash flow": "自由现金流",
   "ROI status": "投资回报状态",
@@ -469,7 +480,6 @@ const zhExact: Record<string, string> = {
   "User-editable scenario assumptions": "用户可编辑情景假设",
   "Representative international tuition model input": "代表性国际学生学费模型输入",
   "Occupation median weekly earnings before tax": "职业每周税前中位收入",
-  "Australian student visa financial-capacity baseline, not guaranteed actual living cost.": "澳大利亚学生签证资金能力基线，不保证等于实际生活费。",
   "Representative model estimate only, not a universal fee. Exact tuition differs by university, course structure, campus, student type, annual indexation, and official offer.": "仅为代表性模型估算，不是通用学费。实际学费会因大学、课程结构、校区、学生身份、年度调整和正式 offer 而不同。",
   "Representative international tuition model estimate, not a universal fee. Verify against the official university course page or offer.": "代表性国际学生学费模型估算，不是通用学费。请以大学官方课程页面或正式 offer 核对。",
   "User-editable assumption - not sourced.": "用户可编辑假设 - 未提供来源。",
@@ -536,8 +546,6 @@ const zhExact: Record<string, string> = {
   "Conservative placeholder for the not-employed outcome in risk-adjusted payback.": "风险调整回本模型中“未就业”情景的保守占位值。",
   "No default for transport, insurance, family support, visa costs, debt repayment, or other personal costs.": "交通、保险、家庭支持、签证成本、还债或其他个人成本暂无默认值。",
   "Fallback tax setting for users who do not want to use resident or foreign resident bracket estimates.": "当用户不想使用税务居民或非税务居民税率档估算时，可使用此备用税率设置。",
-  "Australian student visa financial-capacity baseline, not guaranteed actual living cost. Used here as an editable post-study living-cost baseline.": "澳大利亚学生签证资金能力基线，不保证等于实际生活费。这里作为可编辑的毕业后生活费基线使用。",
-  "Australian student visa financial-capacity baseline, not guaranteed actual living cost. Actual living costs vary by city, lifestyle, rent, family situation, and inflation.": "澳大利亚学生签证资金能力基线，不保证等于实际生活费。实际生活费会因城市、生活方式、租金、家庭情况和通胀而不同。",
   "Scenario adjustments are not official forecasts. They are simple stress-test assumptions used to compare sensitivity.": "情景调整不是官方预测，而是用于比较敏感性的简单压力测试假设。"
   ,
   "Australian individual income tax brackets": "澳大利亚个人所得税税率档"
@@ -832,6 +840,13 @@ export function translateText(text: string, language: Language): string {
   const riskAdjustedUseMatch = text.match(/^Uses ([\d.]+%) employment probability and fallback income\.$/);
   if (riskAdjustedUseMatch) {
     return `使用 ${riskAdjustedUseMatch[1]} 就业概率和备用收入。`;
+  }
+
+  const dynamicRiskAdjustedUseMatch = text.match(
+    /^Uses ([\d.]+%) employment probability and fallback income\. Employed salary rises linearly from graduate salary to occupation median salary by year 5\.$/
+  );
+  if (dynamicRiskAdjustedUseMatch) {
+    return `使用 ${dynamicRiskAdjustedUseMatch[1]} 就业概率和备用收入；找到工作后，薪资会从毕业生起薪线性增长，并在第 5 年达到职业中位薪资。`;
   }
 
   const majorInterestMatch = text.match(/^(.+) may suit you because it connects with your interest in (.+)\.$/);

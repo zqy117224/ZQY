@@ -65,12 +65,6 @@ const incomeFields: FieldConfig[] = [
     inputMode: "percent"
   },
   {
-    key: "salaryGrowthRate",
-    label: "Salary growth rate",
-    help: "Annual salary growth after graduation.",
-    inputMode: "percent"
-  },
-  {
     key: "fallbackIncomeIfNotEmployed",
     label: "Fallback income if not employed",
     help: "Annual income used in the not-employed branch of the risk-adjusted model.",

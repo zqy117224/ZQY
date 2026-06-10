@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { ScoreBar } from "@/components/score-bar";
 import { useI18n } from "@/lib/i18n";
 
@@ -10,7 +11,8 @@ export function PathwayCard({
   upside,
   risk,
   bestFor,
-  notIdealIf
+  notIdealIf,
+  scoreDetails
 }: {
   title: string;
   verdict: string;
@@ -19,6 +21,7 @@ export function PathwayCard({
   risk: string;
   bestFor: string;
   notIdealIf: string;
+  scoreDetails?: ReactNode;
 }) {
   const { tx } = useI18n();
 
@@ -33,6 +36,7 @@ export function PathwayCard({
           <ScoreBar label="Fit score" score={Math.max(1, Math.min(5, Math.round(score / 20)))} />
         </div>
       </div>
+      {scoreDetails ? <div className="mt-4">{scoreDetails}</div> : null}
       <div className="mt-4 grid gap-3 md:grid-cols-2">
         <div className="rounded-md bg-stone-50 p-3">
           <p className="text-sm font-semibold text-ink">{tx("Main upside")}</p>

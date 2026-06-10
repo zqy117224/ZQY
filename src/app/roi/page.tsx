@@ -142,7 +142,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
             <RoiResultCard
               title="Total study cost"
               value={tuitionAssumptionNeeded ? tx("Tuition assumption needed") : formatCurrency(calculation.totalStudyCost)}
-              note="University study cost only: tuition, study-period living costs, other study costs, and opportunity cost."
+              note="Includes tuition, study-period living costs, other study costs, and opportunity cost."
               tone={tuitionAssumptionNeeded ? "warning" : "default"}
             />
             <RoiResultCard
@@ -185,7 +185,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
                       tx("Not recovered after risk adjustment.")
                     )
               }
-              note={`Uses ${formatPercent(assumptions.employmentProbability)} employment probability and fallback income.`}
+              note={`Uses ${formatPercent(assumptions.employmentProbability)} employment probability and fallback income. Employed salary rises linearly from graduate salary to occupation median salary by year 5.`}
               tone={salaryAssumptionNeeded || tuitionAssumptionNeeded || calculation.riskAdjustedPaybackPeriodYears === null ? "warning" : "default"}
             />
             <RoiResultCard
@@ -195,7 +195,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
                   ? tx("Salary assumption needed")
                   : formatCurrency(calculation.cumulativeFreeCashFlow10Years)
               }
-              note="Cumulative employed free cash flow after graduation using the salary growth input."
+              note="Cumulative employed free cash flow. Salary rises linearly from graduate salary to occupation median salary by year 5, then remains at the median."
               tone={salaryAssumptionNeeded ? "warning" : "default"}
             />
           </div>

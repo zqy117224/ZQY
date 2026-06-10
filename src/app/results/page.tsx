@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PathwayCard } from "@/components/pathway-card";
 import { ProfileSummaryCard } from "@/components/profile-summary-card";
 import { RiskBadge } from "@/components/risk-badge";
+import { RoiScoreSummary } from "@/components/roi/RoiScoreSummary";
 import { ScoreBar } from "@/components/score-bar";
 import { SectionHeader } from "@/components/section-header";
 import { SourceNote } from "@/components/source-note";
@@ -169,6 +170,7 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
         risk={recommendation.risk}
         bestFor={recommendation.bestFor}
         notIdealIf={recommendation.notIdealIf}
+        scoreDetails={<RoiScoreSummary pathwayId={major.id} />}
       />
 
       <div className="mt-5 rounded-lg border border-leaf/20 bg-leaf/10 p-4">
@@ -237,7 +239,7 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
         </div>
       </div>
 
-      <div className="mt-5 rounded-lg border border-stone-200 bg-skywash p-4">
+      <div className="hidden">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h3 className="text-sm font-semibold text-ink">{tx("Default ROI snapshot")}</h3>

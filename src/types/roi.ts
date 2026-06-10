@@ -40,7 +40,6 @@ export type PathwayFinancialProfile = {
   laterCareerSalary: SourcedNumber;
   occupationMedianSalary: SourcedNumber;
   employmentProbability: SourcedNumber;
-  salaryGrowthRate: SourcedNumber;
   annualLivingCostAfterGraduation: SourcedNumber;
   fallbackIncomeIfNotEmployed: SourcedNumber;
 };
@@ -52,7 +51,7 @@ export type RoiAssumptions = {
   otherStudyCosts: number;
   opportunityCostPerYear: number;
   startingSalary: number;
-  salaryGrowthRate: number;
+  occupationMedianSalary: number;
   employmentProbability: number;
   annualLivingCostAfterGraduation: number;
   otherAnnualCostsAfterGraduation: number;
@@ -68,7 +67,6 @@ export type RoiInputKey =
   | "otherStudyCosts"
   | "opportunityCostPerYear"
   | "startingSalary"
-  | "salaryGrowthRate"
   | "employmentProbability"
   | "annualLivingCostAfterGraduation"
   | "otherAnnualCostsAfterGraduation"
@@ -98,7 +96,6 @@ export type ScenarioAdjustment = {
   name: ScenarioName;
   salaryMultiplier: SourcedNumber;
   employmentProbabilityDelta: SourcedNumber;
-  salaryGrowthRateDelta: SourcedNumber;
   livingCostMultiplier: SourcedNumber;
 };
 

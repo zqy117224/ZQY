@@ -43,7 +43,7 @@ export function buildInitialAssumptions(profile: PathwayFinancialProfile): RoiAs
     otherStudyCosts: valueOrZero(profile.otherStudyCosts),
     opportunityCostPerYear: valueOrZero(profile.opportunityCostPerYear),
     startingSalary: valueOrZero(profile.startingSalary),
-    salaryGrowthRate: valueOrZero(profile.salaryGrowthRate),
+    occupationMedianSalary: valueOrZero(profile.occupationMedianSalary),
     employmentProbability: valueOrZero(profile.employmentProbability),
     annualLivingCostAfterGraduation: valueOrZero(profile.annualLivingCostAfterGraduation),
     otherAnnualCostsAfterGraduation: valueOrZero(otherAnnualCostsAfterGraduationDefault),
@@ -82,6 +82,12 @@ export function calculateRoi(assumptions: RoiAssumptions): RoiCalculation {
   const employmentProbability = clamp(assumptions.employmentProbability, 0, 1);
   const riskAdjustedExpectedFreeCashFlow =
     employmentProbability * employedFreeCashFlow + (1 - employmentProbability) * fallbackFreeCashFlow;
+  const paybackPeriodYears = calculateDynamicPaybackPeriod(assumptions, totalStudyCost, false);
+  const riskAdjustedPaybackPeriodYears = calculateDynamicPaybackPeriod(
+    assumptions,
+    totalStudyCost,
+    true
+  );
 
   return {
     tuitionCost,
@@ -94,12 +100,8 @@ export function calculateRoi(assumptions: RoiAssumptions): RoiCalculation {
     fallbackFreeCashFlow,
     annualFreeCashFlow,
     riskAdjustedExpectedFreeCashFlow,
-    paybackPeriodYears:
-      annualFreeCashFlow > 0 && totalStudyCost > 0 ? totalStudyCost / annualFreeCashFlow : null,
-    riskAdjustedPaybackPeriodYears:
-      riskAdjustedExpectedFreeCashFlow > 0 && totalStudyCost > 0
-        ? totalStudyCost / riskAdjustedExpectedFreeCashFlow
-        : null,
+    paybackPeriodYears,
+    riskAdjustedPaybackPeriodYears,
     cumulativeFreeCashFlow5Years: calculateCumulativeFreeCashFlow(assumptions, 5),
     cumulativeFreeCashFlow10Years: calculateCumulativeFreeCashFlow(assumptions, 10)
   };
@@ -110,24 +112,18 @@ export function buildScenarioResults(
   profile?: PathwayFinancialProfile
 ): ScenarioResult[] {
   return scenarioAdjustments.map((scenario) => {
-    const laterCareerSalary =
-      scenario.name === "Optimistic" && profile?.laterCareerSalary.value !== null
-        ? profile?.laterCareerSalary.value
-        : null;
     const assumptions: RoiAssumptions = {
       ...baseAssumptions,
       startingSalary: Math.max(
         0,
-        laterCareerSalary ?? baseAssumptions.startingSalary * valueOrOne(scenario.salaryMultiplier)
+        baseAssumptions.startingSalary * valueOrOne(scenario.salaryMultiplier)
       ),
+      occupationMedianSalary:
+        profile?.occupationMedianSalary.value ?? baseAssumptions.occupationMedianSalary,
       employmentProbability: clamp(
         baseAssumptions.employmentProbability + valueOrZero(scenario.employmentProbabilityDelta),
         0,
         1
-      ),
-      salaryGrowthRate: Math.max(
-        -0.99,
-        baseAssumptions.salaryGrowthRate + valueOrZero(scenario.salaryGrowthRateDelta)
       ),
       livingCostPerYearWhileStudying: Math.max(
         0,
@@ -167,7 +163,6 @@ export function findAssumptionWarnings(profile: PathwayFinancialProfile) {
     "otherStudyCosts",
     "opportunityCostPerYear",
     "startingSalary",
-    "salaryGrowthRate",
     "employmentProbability",
     "annualLivingCostAfterGraduation",
     "otherAnnualCostsAfterGraduation",
@@ -208,15 +203,72 @@ function calculateCumulativeFreeCashFlow(assumptions: RoiAssumptions, years: num
   let total = 0;
   const annualOtherCosts = Math.max(0, assumptions.otherAnnualCostsAfterGraduation);
   const livingAfterGraduation = Math.max(0, assumptions.annualLivingCostAfterGraduation);
-  const growthRate = Math.max(-0.99, assumptions.salaryGrowthRate);
 
-  for (let year = 0; year < years; year += 1) {
-    const grossIncome = Math.max(0, assumptions.startingSalary) * Math.pow(1 + growthRate, year);
+  for (let year = 1; year <= years; year += 1) {
+    const grossIncome = salaryForCareerYear(assumptions, year);
     const incomeTax = estimateIncomeTax(grossIncome, assumptions.taxResidency, assumptions.simpleEffectiveTaxRate);
     total += grossIncome - incomeTax - livingAfterGraduation - annualOtherCosts;
   }
 
   return total;
+}
+
+// Year 1 uses graduate salary. Years 2-5 rise linearly, reaching the occupation median in year 5.
+// From year 5 onward, the model holds salary at the occupation median and does not add inflation.
+export function salaryForCareerYear(assumptions: RoiAssumptions, careerYear: number) {
+  const startingSalary = Math.max(0, assumptions.startingSalary);
+  const occupationMedianSalary =
+    assumptions.occupationMedianSalary > 0
+      ? Math.max(0, assumptions.occupationMedianSalary)
+      : startingSalary;
+  const boundedYear = Math.max(1, Math.min(5, careerYear));
+  const progressToMedian = (boundedYear - 1) / 4;
+
+  return startingSalary + (occupationMedianSalary - startingSalary) * progressToMedian;
+}
+
+function calculateDynamicPaybackPeriod(
+  assumptions: RoiAssumptions,
+  totalStudyCost: number,
+  riskAdjusted: boolean
+) {
+  if (totalStudyCost <= 0) {
+    return null;
+  }
+
+  const livingCost = Math.max(0, assumptions.annualLivingCostAfterGraduation);
+  const otherCosts = Math.max(0, assumptions.otherAnnualCostsAfterGraduation);
+  const employmentProbability = clamp(assumptions.employmentProbability, 0, 1);
+  const fallbackIncome = Math.max(0, assumptions.fallbackIncomeIfNotEmployed);
+  const fallbackAfterTax =
+    fallbackIncome -
+    estimateIncomeTax(
+      fallbackIncome,
+      assumptions.taxResidency,
+      assumptions.simpleEffectiveTaxRate
+    );
+  const fallbackFreeCashFlow = fallbackAfterTax - livingCost - otherCosts;
+  let recovered = 0;
+
+  for (let year = 1; year <= 100; year += 1) {
+    const grossIncome = salaryForCareerYear(assumptions, year);
+    const afterTaxIncome =
+      grossIncome -
+      estimateIncomeTax(grossIncome, assumptions.taxResidency, assumptions.simpleEffectiveTaxRate);
+    const employedFreeCashFlow = afterTaxIncome - livingCost - otherCosts;
+    const yearlyFreeCashFlow = riskAdjusted
+      ? employmentProbability * employedFreeCashFlow +
+        (1 - employmentProbability) * fallbackFreeCashFlow
+      : employedFreeCashFlow;
+
+    if (yearlyFreeCashFlow > 0 && recovered + yearlyFreeCashFlow >= totalStudyCost) {
+      return year - 1 + (totalStudyCost - recovered) / yearlyFreeCashFlow;
+    }
+
+    recovered += yearlyFreeCashFlow;
+  }
+
+  return null;
 }
 
 function valueOrZero(value: SourcedNumber) {

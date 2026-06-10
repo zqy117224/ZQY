@@ -9,16 +9,6 @@ import {
 const checkedDate = "2026-05-22";
 const assumptionNote = "User-editable assumption - not sourced.";
 
-const studyAustraliaLivingCostSource: SourceMeta = {
-  sourceName: "Study Australia visa application process: financial capacity requirement",
-  sourceUrl: "https://www.studyaustralia.gov.au/en/plan-your-move/visa-application-process",
-  sourceDate: "2025",
-  lastUpdated: checkedDate,
-  scope: "International student financial capacity planning",
-  note:
-    "Australian student visa financial-capacity baseline, not guaranteed actual living cost. Actual living costs vary by city, lifestyle, rent, family situation, and inflation."
-};
-
 const scenarioAssumptionSource: SourceMeta = {
   sourceName: "VCE Pathway Compass scenario stress-test settings",
   lastUpdated: checkedDate,
@@ -481,21 +471,18 @@ export const scenarioAdjustments: ScenarioAdjustment[] = [
     name: "Conservative",
     salaryMultiplier: scenarioNumber(0.9, "multiplier", "Starting salary reduced by 10% from the base input."),
     employmentProbabilityDelta: scenarioNumber(-0.1, "probability points", "Employment probability reduced by 10 percentage points."),
-    salaryGrowthRateDelta: scenarioNumber(-0.01, "probability points", "Salary growth reduced by 1 percentage point."),
-    livingCostMultiplier: scenarioNumber(1.1, "multiplier", "Living costs increased by 10% from the base input.")
+    livingCostMultiplier: scenarioNumber(1, "multiplier", "Uses the edited base living costs.")
   },
   {
     name: "Base",
     salaryMultiplier: scenarioNumber(1, "multiplier", "Uses the edited base starting salary."),
     employmentProbabilityDelta: scenarioNumber(0, "probability points", "Uses the edited base employment probability."),
-    salaryGrowthRateDelta: scenarioNumber(0, "probability points", "Uses the edited base salary growth rate."),
     livingCostMultiplier: scenarioNumber(1, "multiplier", "Uses the edited base living costs.")
   },
   {
     name: "Optimistic",
     salaryMultiplier: scenarioNumber(1.1, "multiplier", "Starting salary increased by 10% from the base input."),
     employmentProbabilityDelta: scenarioNumber(0.05, "probability points", "Employment probability increased by 5 percentage points."),
-    salaryGrowthRateDelta: scenarioNumber(0.01, "probability points", "Salary growth increased by 1 percentage point."),
     livingCostMultiplier: scenarioNumber(1, "multiplier", "Keeps living costs at the edited base input.")
   }
 ];
@@ -512,11 +499,10 @@ export const roiProfiles: PathwayFinancialProfile[] = majors.map((major) => {
     registrationRequired: defaults.registrationRequired,
     trainingNote: defaults.trainingNote,
     tuitionPerYear: defaults.tuitionPerYear,
-    livingCostPerYearWhileStudying: sourceNumber(
-      29_710,
+    livingCostPerYearWhileStudying: assumptionNumber(
+      45_000,
       "AUD/year",
-      studyAustraliaLivingCostSource,
-      "Australian student visa financial-capacity baseline, not guaranteed actual living cost."
+      "Sydney living-cost model assumption. Actual living costs vary by housing, lifestyle, location, and personal circumstances."
     ),
     otherStudyCosts: assumptionNumber(
       0,
@@ -532,16 +518,10 @@ export const roiProfiles: PathwayFinancialProfile[] = majors.map((major) => {
     laterCareerSalary: laterCareerSalaryForMajor(major),
     occupationMedianSalary: occupationMedianSalaryForMajor(major),
     employmentProbability: employmentDefaultForMajor(major),
-    salaryGrowthRate: assumptionNumber(
-      0,
-      "decimal",
-      "No official pathway-specific graduate salary growth default is included yet."
-    ),
-    annualLivingCostAfterGraduation: sourceNumber(
-      29_710,
+    annualLivingCostAfterGraduation: assumptionNumber(
+      45_000,
       "AUD/year",
-      studyAustraliaLivingCostSource,
-      "Australian student visa financial-capacity baseline, not guaranteed actual living cost. Used here as an editable post-study living-cost baseline."
+      "Sydney living-cost model assumption. Actual living costs vary by housing, lifestyle, location, and personal circumstances."
     ),
     fallbackIncomeIfNotEmployed: assumptionNumber(
       0,

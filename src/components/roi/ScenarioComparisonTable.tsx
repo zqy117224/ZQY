@@ -58,7 +58,7 @@ export function ScenarioComparisonTable({ scenarios }: ScenarioComparisonTablePr
     <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-soft">
       <h2 className="text-lg font-semibold text-ink">{tx("Scenario comparison")}</h2>
       <p className="mt-2 text-sm leading-6 text-stone-700">
-        {tx("Base uses the QILT graduate salary input. Optimistic uses the mapped later-career reference where available, usually JSA occupation median earnings before tax. These are sensitivity tests, not forecasts.")}
+        {tx("Each scenario starts from the graduate salary input and rises linearly to the mapped occupation median salary by year 5. These are sensitivity tests, not forecasts.")}
       </p>
 
       <div className="mt-5 grid gap-4 lg:hidden">

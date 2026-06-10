@@ -18,7 +18,6 @@ const fields: { key: RoiInputKey; label: string }[] = [
   { key: "opportunityCostPerYear", label: "Opportunity cost" },
   { key: "startingSalary", label: "Starting salary" },
   { key: "employmentProbability", label: "Employment probability" },
-  { key: "salaryGrowthRate", label: "Salary growth" },
   { key: "annualLivingCostAfterGraduation", label: "Living cost after graduation" },
   { key: "otherAnnualCostsAfterGraduation", label: "Other annual costs" },
   { key: "fallbackIncomeIfNotEmployed", label: "Fallback income" },
@@ -39,7 +38,6 @@ export function SourceEvidencePanel({ profile }: SourceEvidencePanelProps) {
     ...scenarioAdjustments.flatMap((scenario) => [
       scenario.salaryMultiplier.source,
       scenario.employmentProbabilityDelta.source,
-      scenario.salaryGrowthRateDelta.source,
       scenario.livingCostMultiplier.source
     ])
   ]);
