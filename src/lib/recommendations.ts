@@ -196,7 +196,7 @@ export function collectMainRisks(recommendations: Recommendation[]) {
   return Array.from(new Set(recommendations.flatMap((item) => item.warnings))).slice(0, 6);
 }
 
-function scoreMajor(major: Major, answers: QuestionnaireAnswers): Recommendation {
+export function scoreMajor(major: Major, answers: QuestionnaireAnswers): Recommendation {
   let score = 50;
   const reasons: string[] = [];
   const warnings: string[] = [];
