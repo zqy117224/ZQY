@@ -58,12 +58,12 @@ export function buildInitialAssumptions(profile: PathwayFinancialProfile): RoiAs
 
 export function calculateRoi(assumptions: RoiAssumptions): RoiCalculation {
   const studyYears = Math.max(0, assumptions.studyYears);
-  const tuitionCost = calculateDiscountedEscalatingCost(
+  const tuitionCost = compoundEscalatingStudyCostToGraduation(
     assumptions.tuitionPerYear,
     studyYears,
     ROI_CONFIG.tuitionEscalationRate
   );
-  const livingCostWhileStudying = calculateDiscountedEscalatingCost(
+  const livingCostWhileStudying = compoundEscalatingStudyCostToGraduation(
     assumptions.livingCostPerYearWhileStudying,
     studyYears,
     ROI_CONFIG.livingCostEscalationRate
@@ -96,9 +96,10 @@ export function calculateRoi(assumptions: RoiAssumptions): RoiCalculation {
   const riskAdjustedExpectedFreeCashFlow =
     employmentProbability * employedFreeCashFlow + (1 - employmentProbability) * fallbackFreeCashFlow;
   const paybackPeriodYears = null;
-  const riskAdjustedPaybackPeriodYears = calculateRiskAdjustedPaybackPeriod(
+  const riskAdjustedPaybackPeriodYears = calculateDynamicPaybackPeriod(
     assumptions,
-    totalStudyCost
+    totalStudyCost,
+    true
   );
 
   return {
@@ -225,10 +226,11 @@ function calculateCumulativeFreeCashFlow(assumptions: RoiAssumptions, years: num
   const livingAfterGraduation = Math.max(0, assumptions.annualLivingCostAfterGraduation);
 
   for (let year = 1; year <= years; year += 1) {
+    total *= 1 + ROI_CONFIG.opportunityCostRate;
     const grossIncome = salaryForCareerYear(assumptions, year);
     const incomeTax = estimateIncomeTax(grossIncome, assumptions.taxResidency, assumptions.simpleEffectiveTaxRate);
     const freeCashFlow = grossIncome - incomeTax - livingAfterGraduation - annualOtherCosts;
-    total += freeCashFlow * discountFactor(year);
+    total += freeCashFlow;
   }
 
   return total;
@@ -269,9 +271,11 @@ function calculateDynamicPaybackPeriod(
       assumptions.simpleEffectiveTaxRate
     );
   const fallbackFreeCashFlow = fallbackAfterTax - livingCost - otherCosts;
-  let cumulativeDiscountedCashFlow = 0;
+  let remainingCostBalance = totalStudyCost;
 
   for (let year = 1; year <= 100; year += 1) {
+    const startingBalance = remainingCostBalance;
+    const balanceAfterInvestmentReturn = startingBalance * (1 + ROI_CONFIG.opportunityCostRate);
     const grossIncome = salaryForCareerYear(assumptions, year);
     const afterTaxIncome =
       grossIncome -
@@ -281,40 +285,19 @@ function calculateDynamicPaybackPeriod(
       ? employmentProbability * employedFreeCashFlow +
         (1 - employmentProbability) * fallbackFreeCashFlow
       : employedFreeCashFlow;
-    const startingCumulative = cumulativeDiscountedCashFlow;
-    const discountedYearlyFreeCashFlow = yearlyFreeCashFlow * discountFactor(year);
-    cumulativeDiscountedCashFlow += discountedYearlyFreeCashFlow;
+    const endingBalance = balanceAfterInvestmentReturn - yearlyFreeCashFlow;
 
-    if (discountedYearlyFreeCashFlow > 0 && cumulativeDiscountedCashFlow >= totalStudyCost) {
-      return year - 1 + (totalStudyCost - startingCumulative) / discountedYearlyFreeCashFlow;
+    if (yearlyFreeCashFlow > 0 && endingBalance <= 0 && endingBalance < startingBalance) {
+      return year - 1 + balanceAfterInvestmentReturn / yearlyFreeCashFlow;
     }
+
+    remainingCostBalance = endingBalance;
   }
 
   return null;
 }
 
-function calculateRiskAdjustedPaybackPeriod(
-  assumptions: RoiAssumptions,
-  totalStudyCost: number
-) {
-  if (totalStudyCost <= 0) {
-    return null;
-  }
-
-  const annualSalaryPremium =
-    Math.max(0, assumptions.startingSalary) -
-    Math.max(0, assumptions.fallbackIncomeIfNotEmployed);
-  const employmentProbability = clamp(assumptions.employmentProbability, 0, 1);
-  const riskAdjustedAnnualPremium = annualSalaryPremium * employmentProbability;
-
-  if (riskAdjustedAnnualPremium <= 0) {
-    return null;
-  }
-
-  return totalStudyCost / riskAdjustedAnnualPremium;
-}
-
-function calculateDiscountedEscalatingCost(
+function compoundEscalatingStudyCostToGraduation(
   annualCost: number,
   studyYears: number,
   escalationRate: number
@@ -329,7 +312,7 @@ function calculateDiscountedEscalatingCost(
     total +=
       positiveAnnualCost *
       Math.pow(1 + escalationRate, year - 1) *
-      discountFactor(year);
+      Math.pow(1 + ROI_CONFIG.opportunityCostRate, positiveStudyYears - year + 1);
   }
 
   if (partialYear > 0) {
@@ -338,7 +321,7 @@ function calculateDiscountedEscalatingCost(
       positiveAnnualCost *
       Math.pow(1 + escalationRate, nextYear - 1) *
       partialYear *
-      discountFactor(nextYear);
+      Math.pow(1 + ROI_CONFIG.opportunityCostRate, partialYear);
   }
 
   return total;

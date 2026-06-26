@@ -41,12 +41,12 @@ export function RoiScoreSummary({ pathwayId }: { pathwayId: string }) {
         <Metric
           label="Total tuition"
           value={hasTuition ? formatCurrency(calculation.tuitionCost) : tx("Tuition assumption needed")}
-          note="Present value after 5% annual tuition escalation and 7% real discounting."
+          note="Tuition compounded to graduation at the model return rate."
         />
         <Metric
-          label="Total cost NPV"
+          label="Compounded study cost"
           value={hasTuition ? formatCurrency(calculation.totalStudyCost) : tx("Tuition assumption needed")}
-          note="Present value of tuition and study-period living costs."
+          note="Tuition and study-period living costs compounded to graduation."
         />
         <Metric
           label="After-tax income"

@@ -18,7 +18,7 @@ const rows: {
     getValue: (scenario: ScenarioResult) => formatCurrency(scenario.assumptions.startingSalary)
   },
   {
-    label: "Total cost NPV",
+    label: "Compounded study cost",
     getValue: (scenario: ScenarioResult) => formatCurrency(scenario.calculation.totalStudyCost)
   },
   {
@@ -60,7 +60,7 @@ export function ScenarioComparisonTable({ scenarios }: ScenarioComparisonTablePr
     <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-soft">
       <h2 className="text-lg font-semibold text-ink">{tx("Scenario comparison")}</h2>
       <p className="mt-2 text-sm leading-6 text-stone-700">
-        {tx("Each scenario uses the configured NPV model: 7% real opportunity cost, 5% tuition escalation, 3.5% living-cost escalation, and 30 years of salary benefit. These are sensitivity tests, not forecasts.")}
+        {tx("Each scenario compounds study costs and saved free cash flow at the model return rate. These are sensitivity tests, not forecasts.")}
       </p>
 
       <div className="mt-5 grid gap-4 lg:hidden">

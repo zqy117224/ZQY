@@ -140,9 +140,9 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <RoiResultCard
-              title="Total cost NPV"
+              title="Compounded study cost"
               value={tuitionAssumptionNeeded ? tx("Tuition assumption needed") : formatCurrency(calculation.totalStudyCost)}
-              note="Present value of tuition and living costs, using 5% annual tuition escalation, 3.5% annual living-cost escalation, and a 7% real opportunity cost rate."
+              note="Tuition and study-period living costs are compounded to graduation using the model return rate."
               tone={tuitionAssumptionNeeded ? "warning" : "default"}
             />
             <RoiResultCard
@@ -173,7 +173,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
                       tx("Not recovered after risk adjustment.")
                     )
               }
-              note="Calculated as total cost divided by annual salary difference multiplied by QILT full-time employment rate."
+              note="The study-cost balance keeps compounding each year, then risk-adjusted free cash flow is used to reduce it until recovered."
               tone={salaryAssumptionNeeded || tuitionAssumptionNeeded || calculation.riskAdjustedPaybackPeriodYears === null ? "warning" : "default"}
             />
             <EmploymentRatePanel value={assumptions.employmentProbability} />
@@ -184,7 +184,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
                   ? tx("Salary assumption needed")
                   : formatCurrency(calculation.cumulativeFreeCashFlow10Years)
               }
-              note="Discounted cumulative employed free cash flow. Salary rises linearly to occupation median salary by year 5."
+              note="Cumulative employed free cash flow invested at the model return rate. Salary rises linearly to occupation median salary by year 5."
               tone={salaryAssumptionNeeded ? "warning" : "default"}
             />
           </div>
