@@ -78,15 +78,12 @@ export type RoiCalculation = {
   livingCostWhileStudying: number;
   opportunityCost: number;
   totalStudyCost: number;
-  salaryNpv: number;
-  roiPercent: number | null;
   estimatedIncomeTax: number;
   afterTaxIncome: number;
   employedFreeCashFlow: number;
   fallbackFreeCashFlow: number;
   annualFreeCashFlow: number;
   riskAdjustedExpectedFreeCashFlow: number;
-  paybackPeriodYears: number | null;
   riskAdjustedPaybackPeriodYears: number | null;
   cumulativeFreeCashFlow5Years: number;
   cumulativeFreeCashFlow10Years: number;

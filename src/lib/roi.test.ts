@@ -53,12 +53,6 @@ describe("calculateRoi", () => {
     expect(result.totalStudyCost).toBeCloseTo(53_849.75625, 5);
   });
 
-  it("keeps the internal long-run salary calculation stable", () => {
-    const result = calculateRoi(baseAssumptions());
-    expect(result.salaryNpv).toBeCloseTo(744_542.471010351, 5);
-    expect(result.roiPercent).toBeCloseTo(1282.629231511797, 5);
-  });
-
   it("computes free cash flow as after-tax income minus post-graduation living and other costs", () => {
     const result = calculateRoi(baseAssumptions());
     expect(result.afterTaxIncome).toBe(60_000);
@@ -77,7 +71,6 @@ describe("calculateRoi", () => {
 
   it("uses a compounding cost balance reduced by risk-adjusted free cash flow for payback", () => {
     const result = calculateRoi(baseAssumptions());
-    expect(result.paybackPeriodYears).toBeNull();
     expect(result.riskAdjustedPaybackPeriodYears).toBeCloseTo(1.4713146482656252, 5);
   });
 
@@ -97,9 +90,9 @@ describe("calculateRoi", () => {
     expect(result.riskAdjustedPaybackPeriodYears).toBeNull();
   });
 
-  it("returns null payback when there is no study cost to recover", () => {
+  it("returns null risk-adjusted payback when there is no study cost to recover", () => {
     const result = calculateRoi(baseAssumptions({ tuitionPerYear: 0, livingCostPerYearWhileStudying: 0, otherStudyCosts: 0, opportunityCostPerYear: 0 }));
-    expect(result.paybackPeriodYears).toBeNull();
+    expect(result.riskAdjustedPaybackPeriodYears).toBeNull();
   });
 
   it("compounds saved career-year free cash flow into the cumulative totals", () => {

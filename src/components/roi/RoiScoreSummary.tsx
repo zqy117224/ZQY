@@ -55,7 +55,7 @@ export function RoiScoreSummary({ pathwayId }: { pathwayId: string }) {
         <Metric
           label="Annual free cash flow"
           value={hasSalary ? formatCurrency(calculation.annualFreeCashFlow) : tx("Salary assumption needed")}
-          note="Uses AUD 45,000 per year as a conservative Sydney living-cost model assumption."
+          note="Uses the default after-graduation living-cost assumption."
         />
         <Metric label="Risk-adjusted payback" value={payback} />
         <Metric

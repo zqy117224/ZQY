@@ -36,8 +36,6 @@ export const dataLabelClasses: Record<DataLabel, string> = {
   "broad field graduate outcome": "border-coral/30 bg-coral/10 text-coral"
 };
 
-export const ROI_INVESTMENT_RETURN_RATE = ROI_CONFIG.opportunityCostRate;
-
 export function buildInitialAssumptions(profile: PathwayFinancialProfile): RoiAssumptions {
   return {
     studyYears: valueOrZero(profile.studyYears),
@@ -70,9 +68,6 @@ export function calculateRoi(assumptions: RoiAssumptions): RoiCalculation {
   );
   const opportunityCost = 0;
   const totalStudyCost = tuitionCost + livingCostWhileStudying;
-  const salaryNpv = calculateSalaryPremiumNpv(assumptions);
-  const roiPercent =
-    totalStudyCost > 0 ? ((salaryNpv - totalStudyCost) / totalStudyCost) * 100 : null;
 
   const estimatedIncomeTax = estimateIncomeTax(
     assumptions.startingSalary,
@@ -95,7 +90,6 @@ export function calculateRoi(assumptions: RoiAssumptions): RoiCalculation {
   const employmentProbability = clamp(assumptions.employmentProbability, 0, 1);
   const riskAdjustedExpectedFreeCashFlow =
     employmentProbability * employedFreeCashFlow + (1 - employmentProbability) * fallbackFreeCashFlow;
-  const paybackPeriodYears = null;
   const riskAdjustedPaybackPeriodYears = calculateDynamicPaybackPeriod(
     assumptions,
     totalStudyCost,
@@ -107,15 +101,12 @@ export function calculateRoi(assumptions: RoiAssumptions): RoiCalculation {
     livingCostWhileStudying,
     opportunityCost,
     totalStudyCost,
-    salaryNpv,
-    roiPercent,
     estimatedIncomeTax,
     afterTaxIncome,
     employedFreeCashFlow,
     fallbackFreeCashFlow,
     annualFreeCashFlow,
     riskAdjustedExpectedFreeCashFlow,
-    paybackPeriodYears,
     riskAdjustedPaybackPeriodYears,
     cumulativeFreeCashFlow5Years: calculateCumulativeFreeCashFlow(assumptions, 5),
     cumulativeFreeCashFlow10Years: calculateCumulativeFreeCashFlow(assumptions, 10)
@@ -198,14 +189,6 @@ export function formatCurrency(value: number) {
 
 export function formatPercent(value: number) {
   return `${Math.round(value * 1000) / 10}%`;
-}
-
-export function formatRoiPercent(value: number | null) {
-  if (value === null || !Number.isFinite(value)) {
-    return "Not available";
-  }
-
-  return `${value >= 0 ? "+" : ""}${Math.round(value)}%`;
 }
 
 export function formatPayback(value: number | null, notRecoveredText: string) {
@@ -325,24 +308,6 @@ function compoundEscalatingStudyCostToGraduation(
   }
 
   return total;
-}
-
-function calculateSalaryPremiumNpv(assumptions: RoiAssumptions) {
-  const employmentProbability = clamp(assumptions.employmentProbability, 0, 1);
-  const baselineSalary = Math.max(0, assumptions.fallbackIncomeIfNotEmployed);
-  let total = 0;
-
-  for (let year = 1; year <= ROI_CONFIG.workingLifeYears; year += 1) {
-    const salaryPremium =
-      salaryForCareerYear(assumptions, year) * employmentProbability - baselineSalary;
-    total += salaryPremium * discountFactor(year);
-  }
-
-  return total;
-}
-
-function discountFactor(year: number) {
-  return 1 / Math.pow(1 + ROI_CONFIG.opportunityCostRate, Math.max(0, year));
 }
 
 function valueOrZero(value: SourcedNumber) {

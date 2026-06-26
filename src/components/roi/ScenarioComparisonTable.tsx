@@ -39,8 +39,8 @@ const rows: {
   },
   {
     label: "QILT full-time employment rate",
-    getValue: (scenario: ScenarioResult) => (
-      <EmploymentRateValue value={scenario.assumptions.employmentProbability} />
+    getValue: (scenario: ScenarioResult, tx: (text: string) => string) => (
+      <EmploymentRateValue value={scenario.assumptions.employmentProbability} tx={tx} />
     )
   },
   {
@@ -109,7 +109,7 @@ export function ScenarioComparisonTable({ scenarios }: ScenarioComparisonTablePr
   );
 }
 
-function EmploymentRateValue({ value }: { value: number }) {
+function EmploymentRateValue({ value, tx }: { value: number; tx: (text: string) => string }) {
   const boundedValue = Math.min(1, Math.max(0, value));
   const isLow = boundedValue < 0.6;
   const isMedium = boundedValue >= 0.6 && boundedValue < 0.8;
@@ -125,7 +125,7 @@ function EmploymentRateValue({ value }: { value: number }) {
       className={`font-semibold ${classes}`}
       title={
         isLow
-          ? "Less than 60% of graduates secure full-time employment (QILT). This significantly extends the real payback period."
+          ? tx("Less than 60% of graduates secure full-time employment (QILT). This significantly extends the real payback period.")
           : undefined
       }
     >
