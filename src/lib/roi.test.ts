@@ -45,12 +45,12 @@ describe("salaryForCareerYear", () => {
 });
 
 describe("calculateRoi", () => {
-  it("computes study cost as the sum of tuition, living, other costs, and opportunity cost", () => {
+  it("compounds tuition and living costs to graduation and excludes opportunity cost", () => {
     const result = calculateRoi(baseAssumptions());
-    expect(result.tuitionCost).toBe(30_000);
-    expect(result.livingCostWhileStudying).toBe(15_000);
-    expect(result.opportunityCost).toBe(6_000);
-    expect(result.totalStudyCost).toBe(52_000);
+    expect(result.tuitionCost).toBeCloseTo(36_410, 5);
+    expect(result.livingCostWhileStudying).toBeCloseTo(18_205, 5);
+    expect(result.opportunityCost).toBe(0);
+    expect(result.totalStudyCost).toBeCloseTo(54_615, 5);
   });
 
   it("computes free cash flow as after-tax income minus post-graduation living and other costs", () => {
@@ -71,8 +71,8 @@ describe("calculateRoi", () => {
 
   it("finds the payback period once cumulative free cash flow exceeds total study cost", () => {
     const result = calculateRoi(baseAssumptions());
-    // 40,000/year flat free cash flow against a 52,000 study cost recovers partway through year 2.
-    expect(result.paybackPeriodYears).toBeCloseTo(1.3, 5);
+    // The remaining study-cost balance keeps compounding at 10% until free cash flow clears it.
+    expect(result.paybackPeriodYears).toBeCloseTo(1.5284353297, 5);
   });
 
   it("returns null payback when free cash flow never recovers the study cost", () => {
@@ -87,11 +87,10 @@ describe("calculateRoi", () => {
     expect(result.paybackPeriodYears).toBeNull();
   });
 
-  it("sums career-year salary into multi-year cumulative free cash flow", () => {
+  it("compounds saved career-year free cash flow into the cumulative totals", () => {
     const result = calculateRoi(baseAssumptions());
-    // Flat 60,000 salary, 20,000 living costs, no tax => 40,000/year free cash flow.
-    expect(result.cumulativeFreeCashFlow5Years).toBe(200_000);
-    expect(result.cumulativeFreeCashFlow10Years).toBe(400_000);
+    expect(result.cumulativeFreeCashFlow5Years).toBeCloseTo(244_204, 5);
+    expect(result.cumulativeFreeCashFlow10Years).toBeCloseTo(637_496.98404, 5);
   });
 
   it("treats negative inputs as zero rather than reducing the total", () => {

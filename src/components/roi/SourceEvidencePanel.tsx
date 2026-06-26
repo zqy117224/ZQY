@@ -14,8 +14,6 @@ const fields: { key: RoiInputKey; label: string }[] = [
   { key: "studyYears", label: "Study years" },
   { key: "tuitionPerYear", label: "Tuition per year" },
   { key: "livingCostPerYearWhileStudying", label: "Living cost while studying" },
-  { key: "otherStudyCosts", label: "Other study costs" },
-  { key: "opportunityCostPerYear", label: "Opportunity cost" },
   { key: "startingSalary", label: "Starting salary" },
   { key: "employmentProbability", label: "Employment probability" },
   { key: "annualLivingCostAfterGraduation", label: "Living cost after graduation" },

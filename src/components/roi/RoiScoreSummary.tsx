@@ -8,7 +8,8 @@ import {
   calculateRoi,
   formatCurrency,
   formatPayback,
-  formatPercent
+  formatPercent,
+  ROI_INVESTMENT_RETURN_RATE
 } from "@/lib/roi";
 
 export function RoiScoreSummary({ pathwayId }: { pathwayId: string }) {
@@ -41,12 +42,12 @@ export function RoiScoreSummary({ pathwayId }: { pathwayId: string }) {
         <Metric
           label="Total tuition"
           value={hasTuition ? formatCurrency(calculation.tuitionCost) : tx("Tuition assumption needed")}
-          note="Tuition per year multiplied by study years. Living costs are excluded."
+          note="Tuition compounded to the graduation-date starting balance at the 10% annual model rate."
         />
         <Metric
           label="Total study cost"
           value={hasTuition ? formatCurrency(calculation.totalStudyCost) : tx("Tuition assumption needed")}
-          note="Includes tuition and AUD 45,000 per study year for living costs."
+          note="Graduation-date starting balance. During payback, this balance keeps compounding at 10% until recovered."
         />
         <Metric
           label="After-tax income"
@@ -60,7 +61,7 @@ export function RoiScoreSummary({ pathwayId }: { pathwayId: string }) {
         <Metric
           label="Risk-adjusted payback"
           value={payback}
-          note="Uses AUD 45,000 per year as the Sydney living-cost model assumption. Employed salary rises linearly to the occupation median by year 5."
+          note={`The study-cost balance keeps growing at ${formatPercent(ROI_INVESTMENT_RETURN_RATE)} until free cash flow clears it.`}
         />
         <Metric
           label="Graduate salary"

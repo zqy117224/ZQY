@@ -58,7 +58,7 @@ export function ScenarioComparisonTable({ scenarios }: ScenarioComparisonTablePr
     <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-soft">
       <h2 className="text-lg font-semibold text-ink">{tx("Scenario comparison")}</h2>
       <p className="mt-2 text-sm leading-6 text-stone-700">
-        {tx("Each scenario starts from the graduate salary input and rises linearly to the mapped occupation median salary by year 5. These are sensitivity tests, not forecasts.")}
+        {tx("Each scenario starts from the graduate salary input and rises linearly to the mapped occupation median salary by year 5. During payback, the study-cost balance keeps compounding at 10% until free cash flow clears it. These are sensitivity tests, not forecasts.")}
       </p>
 
       <div className="mt-5 grid gap-4 lg:hidden">

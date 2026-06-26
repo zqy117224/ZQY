@@ -33,10 +33,13 @@ export default function HomePage() {
   return (
     <div>
       <section className="relative overflow-hidden bg-ink text-white">
-        <img
-          src="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=1600&q=80"
-          alt="Students walking through a university campus"
-          className="absolute inset-0 h-full w-full object-cover opacity-40"
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-cover bg-center opacity-40"
+          style={{
+            backgroundImage:
+              "url(https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=1600&q=80)"
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/78 to-ink/28" />
         <div className="relative mx-auto flex min-h-[calc(100svh-120px)] max-w-6xl flex-col justify-center px-4 py-14">

@@ -36,18 +36,6 @@ const studyCostFields: FieldConfig[] = [
     label: "Living cost while studying",
     help: "Annual living-cost planning baseline while studying.",
     inputMode: "money"
-  },
-  {
-    key: "otherStudyCosts",
-    label: "Other study costs",
-    help: "Books, equipment, placement checks, visa, OSHC, relocation, flights, or exam costs.",
-    inputMode: "money"
-  },
-  {
-    key: "opportunityCostPerYear",
-    label: "Opportunity cost per year",
-    help: "Income you give up by studying instead of working full time.",
-    inputMode: "money"
   }
 ];
 

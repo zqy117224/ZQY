@@ -17,6 +17,7 @@ import {
   formatCurrency,
   formatPayback,
   formatPercent,
+  ROI_INVESTMENT_RETURN_RATE,
   dataLabelClasses,
   qualityClasses,
   qualityLabels
@@ -142,7 +143,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
             <RoiResultCard
               title="Total study cost"
               value={tuitionAssumptionNeeded ? tx("Tuition assumption needed") : formatCurrency(calculation.totalStudyCost)}
-              note="Includes tuition, study-period living costs, other study costs, and opportunity cost."
+              note="This is the graduation-date starting balance from tuition and study-period living costs. Payback keeps this balance compounding at 10% until recovered."
               tone={tuitionAssumptionNeeded ? "warning" : "default"}
             />
             <RoiResultCard
@@ -170,7 +171,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
                     ? tx("Payback unavailable — tuition assumption needed.")
                   : formatPayback(calculation.paybackPeriodYears, tx("Not recovered under current assumptions."))
               }
-              note="Total study cost divided by annual free cash flow."
+              note="During payback, the study-cost balance keeps compounding at 10% each year, and annual free cash flow is used to reduce it."
               tone={salaryAssumptionNeeded || tuitionAssumptionNeeded || calculation.paybackPeriodYears === null ? "warning" : "default"}
             />
             <RoiResultCard
@@ -185,7 +186,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
                       tx("Not recovered after risk adjustment.")
                     )
               }
-              note={`Uses ${formatPercent(assumptions.employmentProbability)} employment probability and fallback income. Employed salary rises linearly from graduate salary to occupation median salary by year 5.`}
+              note={`Uses ${formatPercent(assumptions.employmentProbability)} employment probability and fallback income. Free cash flow is invested at ${formatPercent(ROI_INVESTMENT_RETURN_RATE)} per year.`}
               tone={salaryAssumptionNeeded || tuitionAssumptionNeeded || calculation.riskAdjustedPaybackPeriodYears === null ? "warning" : "default"}
             />
             <RoiResultCard
@@ -195,7 +196,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
                   ? tx("Salary assumption needed")
                   : formatCurrency(calculation.cumulativeFreeCashFlow10Years)
               }
-              note="Cumulative employed free cash flow. Salary rises linearly from graduate salary to occupation median salary by year 5, then remains at the median."
+              note="Cumulative employed free cash flow invested at the 10% annual model rate. Salary rises linearly to occupation median salary by year 5."
               tone={salaryAssumptionNeeded ? "warning" : "default"}
             />
           </div>

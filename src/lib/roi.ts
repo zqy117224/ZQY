@@ -35,6 +35,8 @@ export const dataLabelClasses: Record<DataLabel, string> = {
   "broad field graduate outcome": "border-coral/30 bg-coral/10 text-coral"
 };
 
+export const ROI_INVESTMENT_RETURN_RATE = 0.1;
+
 export function buildInitialAssumptions(profile: PathwayFinancialProfile): RoiAssumptions {
   return {
     studyYears: valueOrZero(profile.studyYears),
@@ -55,11 +57,16 @@ export function buildInitialAssumptions(profile: PathwayFinancialProfile): RoiAs
 
 export function calculateRoi(assumptions: RoiAssumptions): RoiCalculation {
   const studyYears = Math.max(0, assumptions.studyYears);
-  const tuitionCost = Math.max(0, assumptions.tuitionPerYear) * studyYears;
-  const livingCostWhileStudying = Math.max(0, assumptions.livingCostPerYearWhileStudying) * studyYears;
-  const opportunityCost = Math.max(0, assumptions.opportunityCostPerYear) * studyYears;
-  const totalStudyCost =
-    tuitionCost + livingCostWhileStudying + Math.max(0, assumptions.otherStudyCosts) + opportunityCost;
+  const tuitionCost = compoundAnnualStudyCostToGraduation(
+    assumptions.tuitionPerYear,
+    studyYears
+  );
+  const livingCostWhileStudying = compoundAnnualStudyCostToGraduation(
+    assumptions.livingCostPerYearWhileStudying,
+    studyYears
+  );
+  const opportunityCost = 0;
+  const totalStudyCost = tuitionCost + livingCostWhileStudying;
 
   const estimatedIncomeTax = estimateIncomeTax(
     assumptions.startingSalary,
@@ -160,8 +167,6 @@ export function findAssumptionWarnings(profile: PathwayFinancialProfile) {
     "studyYears",
     "tuitionPerYear",
     "livingCostPerYearWhileStudying",
-    "otherStudyCosts",
-    "opportunityCostPerYear",
     "startingSalary",
     "employmentProbability",
     "annualLivingCostAfterGraduation",
@@ -205,6 +210,7 @@ function calculateCumulativeFreeCashFlow(assumptions: RoiAssumptions, years: num
   const livingAfterGraduation = Math.max(0, assumptions.annualLivingCostAfterGraduation);
 
   for (let year = 1; year <= years; year += 1) {
+    total *= 1 + ROI_INVESTMENT_RETURN_RATE;
     const grossIncome = salaryForCareerYear(assumptions, year);
     const incomeTax = estimateIncomeTax(grossIncome, assumptions.taxResidency, assumptions.simpleEffectiveTaxRate);
     total += grossIncome - incomeTax - livingAfterGraduation - annualOtherCosts;
@@ -248,9 +254,11 @@ function calculateDynamicPaybackPeriod(
       assumptions.simpleEffectiveTaxRate
     );
   const fallbackFreeCashFlow = fallbackAfterTax - livingCost - otherCosts;
-  let recovered = 0;
+  let remainingCostBalance = totalStudyCost;
 
   for (let year = 1; year <= 100; year += 1) {
+    const startingBalance = remainingCostBalance;
+    const balanceAfterInvestmentReturn = startingBalance * (1 + ROI_INVESTMENT_RETURN_RATE);
     const grossIncome = salaryForCareerYear(assumptions, year);
     const afterTaxIncome =
       grossIncome -
@@ -260,15 +268,40 @@ function calculateDynamicPaybackPeriod(
       ? employmentProbability * employedFreeCashFlow +
         (1 - employmentProbability) * fallbackFreeCashFlow
       : employedFreeCashFlow;
+    const endingBalance = balanceAfterInvestmentReturn - yearlyFreeCashFlow;
 
-    if (yearlyFreeCashFlow > 0 && recovered + yearlyFreeCashFlow >= totalStudyCost) {
-      return year - 1 + (totalStudyCost - recovered) / yearlyFreeCashFlow;
+    if (endingBalance <= 0 && endingBalance < startingBalance) {
+      return year - 1 + startingBalance / (startingBalance - endingBalance);
     }
 
-    recovered += yearlyFreeCashFlow;
+    remainingCostBalance = endingBalance;
   }
 
   return null;
+}
+
+// Treat tuition and study-period living costs as money paid at the start of each study year.
+// Each payment is compounded at the model's 10% annual return rate to the graduation date.
+// During payback, that graduation-date cost balance keeps compounding until free cash flow clears it.
+function compoundAnnualStudyCostToGraduation(annualCost: number, studyYears: number) {
+  const positiveAnnualCost = Math.max(0, annualCost);
+  const positiveStudyYears = Math.max(0, studyYears);
+  const fullYears = Math.floor(positiveStudyYears);
+  const partialYear = positiveStudyYears - fullYears;
+  let total = 0;
+
+  for (let yearIndex = 0; yearIndex < fullYears; yearIndex += 1) {
+    total += positiveAnnualCost * Math.pow(1 + ROI_INVESTMENT_RETURN_RATE, positiveStudyYears - yearIndex);
+  }
+
+  if (partialYear > 0) {
+    total +=
+      positiveAnnualCost *
+      partialYear *
+      Math.pow(1 + ROI_INVESTMENT_RETURN_RATE, partialYear);
+  }
+
+  return total;
 }
 
 function valueOrZero(value: SourcedNumber) {
