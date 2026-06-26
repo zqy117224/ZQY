@@ -14,7 +14,7 @@ export default function ConsultationPage() {
           <SectionHeader
             eyebrow="Coming soon"
             title="Guided pathway reviews may be added later"
-            description="For now, the questionnaire and comparison tool are the main way to evaluate majors, prerequisites, workload, ROI, and career trade-offs."
+            description="For now, the questionnaire and comparison tool are the main way to evaluate majors, prerequisites, workload, payback time, and career trade-offs."
           />
 
           <div className="mt-8 grid gap-4 md:grid-cols-2">

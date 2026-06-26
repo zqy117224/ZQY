@@ -17,7 +17,6 @@ import {
   formatCurrency,
   formatPayback,
   formatPercent,
-  ROI_INVESTMENT_RETURN_RATE,
   dataLabelClasses,
   qualityClasses,
   qualityLabels
@@ -73,7 +72,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
       <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <SectionHeader
           eyebrow="Financial planning model"
-          title="Education ROI Calculator"
+          title="Education Payback Calculator"
           description="Estimate study cost, after-tax income, free cash flow, and payback time using source-backed data and editable assumptions."
         />
         <Link
@@ -141,9 +140,9 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <RoiResultCard
-              title="Total study cost"
+              title="Total cost NPV"
               value={tuitionAssumptionNeeded ? tx("Tuition assumption needed") : formatCurrency(calculation.totalStudyCost)}
-              note="This is the graduation-date starting balance from tuition and study-period living costs. Payback keeps this balance compounding at 10% until recovered."
+              note="Present value of tuition and living costs, using 5% annual tuition escalation, 3.5% annual living-cost escalation, and a 7% real opportunity cost rate."
               tone={tuitionAssumptionNeeded ? "warning" : "default"}
             />
             <RoiResultCard
@@ -163,18 +162,6 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
               tone={salaryAssumptionNeeded || calculation.annualFreeCashFlow <= 0 ? "warning" : "default"}
             />
             <RoiResultCard
-              title="Payback period"
-              value={
-                salaryAssumptionNeeded
-                  ? tx("Salary assumption needed")
-                  : tuitionAssumptionNeeded
-                    ? tx("Payback unavailable — tuition assumption needed.")
-                  : formatPayback(calculation.paybackPeriodYears, tx("Not recovered under current assumptions."))
-              }
-              note="During payback, the study-cost balance keeps compounding at 10% each year, and annual free cash flow is used to reduce it."
-              tone={salaryAssumptionNeeded || tuitionAssumptionNeeded || calculation.paybackPeriodYears === null ? "warning" : "default"}
-            />
-            <RoiResultCard
               title="Risk-adjusted payback"
               value={
                 salaryAssumptionNeeded
@@ -186,9 +173,10 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
                       tx("Not recovered after risk adjustment.")
                     )
               }
-              note={`Uses ${formatPercent(assumptions.employmentProbability)} employment probability and fallback income. Free cash flow is invested at ${formatPercent(ROI_INVESTMENT_RETURN_RATE)} per year.`}
+              note="Calculated as total cost divided by annual salary difference multiplied by QILT full-time employment rate."
               tone={salaryAssumptionNeeded || tuitionAssumptionNeeded || calculation.riskAdjustedPaybackPeriodYears === null ? "warning" : "default"}
             />
+            <EmploymentRatePanel value={assumptions.employmentProbability} />
             <RoiResultCard
               title="10-year free cash flow"
               value={
@@ -196,7 +184,7 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
                   ? tx("Salary assumption needed")
                   : formatCurrency(calculation.cumulativeFreeCashFlow10Years)
               }
-              note="Cumulative employed free cash flow invested at the 10% annual model rate. Salary rises linearly to occupation median salary by year 5."
+              note="Discounted cumulative employed free cash flow. Salary rises linearly to occupation median salary by year 5."
               tone={salaryAssumptionNeeded ? "warning" : "default"}
             />
           </div>
@@ -248,6 +236,39 @@ function TrainingFact({ label, value }: { label: string; value: string }) {
   );
 }
 
+function EmploymentRatePanel({ value }: { value: number }) {
+  const { tx } = useI18n();
+  const boundedValue = Math.min(1, Math.max(0, value));
+  const isLow = boundedValue < 0.6;
+  const isMedium = boundedValue >= 0.6 && boundedValue < 0.8;
+  const showWarning = isLow || isMedium;
+  const classes = isLow
+    ? "border-red-300 bg-red-50 text-red-700"
+    : isMedium
+      ? "border-amber-300 bg-amber-50 text-amber-700"
+      : "border-leaf/30 bg-leaf/10 text-leaf";
+
+  return (
+    <div
+      className={`rounded-lg border p-4 ${classes}`}
+      title={
+        isLow
+          ? tx("Less than 60% of graduates secure full-time employment (QILT). This significantly extends the real payback period.")
+          : undefined
+      }
+    >
+      <p className="text-xs font-semibold uppercase">{tx("QILT full-time employment rate")}</p>
+      <p className="mt-1 text-2xl font-bold">
+        {showWarning ? "⚠️ " : ""}
+        {formatPercent(boundedValue)}
+      </p>
+      <p className="mt-1 text-xs leading-5">
+        {tx("Shown separately because employment risk is one of the biggest drivers of payback time.")}
+      </p>
+    </div>
+  );
+}
+
 function formatProfessionalTime(profile: ReturnType<typeof getRoiProfile>) {
   if (profile.professionalPathwayLabel) {
     return profile.professionalPathwayLabel;
@@ -271,7 +292,7 @@ function SalaryAuditPanel({ audit }: { audit: ReturnType<typeof auditRoiSalaryDe
     <details className="rounded-lg border border-stone-200 bg-white p-5 shadow-soft">
       <summary className="cursor-pointer text-lg font-semibold text-ink">{tx("Salary default audit")}</summary>
       <p className="mt-3 text-sm leading-6 text-stone-700">
-        {tx("This check lists the salary input status for every pathway and flags duplicate salary defaults. Missing rows require a user-entered salary before ROI income and payback outputs are meaningful.")}
+        {tx("This check lists the salary input status for every pathway and flags duplicate salary defaults. Missing rows require a user-entered salary before income and payback outputs are meaningful.")}
       </p>
 
       {audit.duplicateWarnings.length > 0 ? (

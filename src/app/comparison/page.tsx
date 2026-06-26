@@ -58,7 +58,7 @@ const comparisonRows: {
   },
   { label: "Graduate salary evidence", getValue: (major, tx) => tx(major.graduateOutcomes.salaryRange) },
   {
-    label: "ROI calculator defaults",
+    label: "Payback calculator defaults",
     getValue: (major, tx) => {
       const profile = getRoiProfile(major.id);
 
@@ -70,7 +70,7 @@ const comparisonRows: {
           <p>{tx("Later-career salary reference")}: {formatSourcedNumber(profile.laterCareerSalary, tx, "salary")}</p>
           <p>{tx("Employment probability")}: {formatSourcedNumber(profile.employmentProbability, tx)}</p>
           <Link href={`/roi?pathway=${major.id}`} className="inline-block text-leaf underline underline-offset-2">
-            {tx("Open ROI calculator")}
+            {tx("Open payback calculator")}
           </Link>
         </div>
       );
@@ -243,7 +243,7 @@ function MajorSummaryCard({ major }: { major: Major }) {
             <p>{tx("Starting salary")}: {formatSourcedNumber(roiProfile.startingSalary, tx, "salary")}</p>
             <p>{tx("Later-career salary reference")}: {formatSourcedNumber(roiProfile.laterCareerSalary, tx, "salary")}</p>
             <Link href={`/roi?pathway=${major.id}`} className="mt-2 inline-block text-leaf underline underline-offset-2">
-              {tx("Open ROI calculator")}
+              {tx("Open payback calculator")}
             </Link>
           </div>
         </div>

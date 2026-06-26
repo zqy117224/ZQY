@@ -22,7 +22,7 @@ const highlights = [
     body: "Start with fit, then compare evidence side by side before spending more time or tuition dollars."
   },
   {
-    title: "Estimate education ROI",
+    title: "Estimate payback time",
     body: "Estimate study cost, tax-adjusted income, free cash flow, and payback time under different scenarios."
   }
 ];

@@ -3,6 +3,7 @@ import {
   scenarioAdjustments,
   simpleEffectiveTaxRateDefault
 } from "@/data/roiDefaults";
+import { ROI_CONFIG } from "@/lib/roiConfig";
 import { estimateIncomeTax } from "@/lib/tax";
 import {
   type DataLabel,
@@ -35,7 +36,7 @@ export const dataLabelClasses: Record<DataLabel, string> = {
   "broad field graduate outcome": "border-coral/30 bg-coral/10 text-coral"
 };
 
-export const ROI_INVESTMENT_RETURN_RATE = 0.1;
+export const ROI_INVESTMENT_RETURN_RATE = ROI_CONFIG.opportunityCostRate;
 
 export function buildInitialAssumptions(profile: PathwayFinancialProfile): RoiAssumptions {
   return {
@@ -57,16 +58,21 @@ export function buildInitialAssumptions(profile: PathwayFinancialProfile): RoiAs
 
 export function calculateRoi(assumptions: RoiAssumptions): RoiCalculation {
   const studyYears = Math.max(0, assumptions.studyYears);
-  const tuitionCost = compoundAnnualStudyCostToGraduation(
+  const tuitionCost = calculateDiscountedEscalatingCost(
     assumptions.tuitionPerYear,
-    studyYears
+    studyYears,
+    ROI_CONFIG.tuitionEscalationRate
   );
-  const livingCostWhileStudying = compoundAnnualStudyCostToGraduation(
+  const livingCostWhileStudying = calculateDiscountedEscalatingCost(
     assumptions.livingCostPerYearWhileStudying,
-    studyYears
+    studyYears,
+    ROI_CONFIG.livingCostEscalationRate
   );
   const opportunityCost = 0;
   const totalStudyCost = tuitionCost + livingCostWhileStudying;
+  const salaryNpv = calculateSalaryPremiumNpv(assumptions);
+  const roiPercent =
+    totalStudyCost > 0 ? ((salaryNpv - totalStudyCost) / totalStudyCost) * 100 : null;
 
   const estimatedIncomeTax = estimateIncomeTax(
     assumptions.startingSalary,
@@ -89,11 +95,10 @@ export function calculateRoi(assumptions: RoiAssumptions): RoiCalculation {
   const employmentProbability = clamp(assumptions.employmentProbability, 0, 1);
   const riskAdjustedExpectedFreeCashFlow =
     employmentProbability * employedFreeCashFlow + (1 - employmentProbability) * fallbackFreeCashFlow;
-  const paybackPeriodYears = calculateDynamicPaybackPeriod(assumptions, totalStudyCost, false);
-  const riskAdjustedPaybackPeriodYears = calculateDynamicPaybackPeriod(
+  const paybackPeriodYears = null;
+  const riskAdjustedPaybackPeriodYears = calculateRiskAdjustedPaybackPeriod(
     assumptions,
-    totalStudyCost,
-    true
+    totalStudyCost
   );
 
   return {
@@ -101,6 +106,8 @@ export function calculateRoi(assumptions: RoiAssumptions): RoiCalculation {
     livingCostWhileStudying,
     opportunityCost,
     totalStudyCost,
+    salaryNpv,
+    roiPercent,
     estimatedIncomeTax,
     afterTaxIncome,
     employedFreeCashFlow,
@@ -192,6 +199,14 @@ export function formatPercent(value: number) {
   return `${Math.round(value * 1000) / 10}%`;
 }
 
+export function formatRoiPercent(value: number | null) {
+  if (value === null || !Number.isFinite(value)) {
+    return "Not available";
+  }
+
+  return `${value >= 0 ? "+" : ""}${Math.round(value)}%`;
+}
+
 export function formatPayback(value: number | null, notRecoveredText: string) {
   if (value === null || !Number.isFinite(value) || value <= 0) {
     return notRecoveredText;
@@ -210,17 +225,17 @@ function calculateCumulativeFreeCashFlow(assumptions: RoiAssumptions, years: num
   const livingAfterGraduation = Math.max(0, assumptions.annualLivingCostAfterGraduation);
 
   for (let year = 1; year <= years; year += 1) {
-    total *= 1 + ROI_INVESTMENT_RETURN_RATE;
     const grossIncome = salaryForCareerYear(assumptions, year);
     const incomeTax = estimateIncomeTax(grossIncome, assumptions.taxResidency, assumptions.simpleEffectiveTaxRate);
-    total += grossIncome - incomeTax - livingAfterGraduation - annualOtherCosts;
+    const freeCashFlow = grossIncome - incomeTax - livingAfterGraduation - annualOtherCosts;
+    total += freeCashFlow * discountFactor(year);
   }
 
   return total;
 }
 
 // Year 1 uses graduate salary. Years 2-5 rise linearly, reaching the occupation median in year 5.
-// From year 5 onward, the model holds salary at the occupation median and does not add inflation.
+// From year 5 onward, the model holds salary at the occupation median and assumes 0% real wage growth.
 export function salaryForCareerYear(assumptions: RoiAssumptions, careerYear: number) {
   const startingSalary = Math.max(0, assumptions.startingSalary);
   const occupationMedianSalary =
@@ -254,11 +269,9 @@ function calculateDynamicPaybackPeriod(
       assumptions.simpleEffectiveTaxRate
     );
   const fallbackFreeCashFlow = fallbackAfterTax - livingCost - otherCosts;
-  let remainingCostBalance = totalStudyCost;
+  let cumulativeDiscountedCashFlow = 0;
 
   for (let year = 1; year <= 100; year += 1) {
-    const startingBalance = remainingCostBalance;
-    const balanceAfterInvestmentReturn = startingBalance * (1 + ROI_INVESTMENT_RETURN_RATE);
     const grossIncome = salaryForCareerYear(assumptions, year);
     const afterTaxIncome =
       grossIncome -
@@ -268,40 +281,85 @@ function calculateDynamicPaybackPeriod(
       ? employmentProbability * employedFreeCashFlow +
         (1 - employmentProbability) * fallbackFreeCashFlow
       : employedFreeCashFlow;
-    const endingBalance = balanceAfterInvestmentReturn - yearlyFreeCashFlow;
+    const startingCumulative = cumulativeDiscountedCashFlow;
+    const discountedYearlyFreeCashFlow = yearlyFreeCashFlow * discountFactor(year);
+    cumulativeDiscountedCashFlow += discountedYearlyFreeCashFlow;
 
-    if (endingBalance <= 0 && endingBalance < startingBalance) {
-      return year - 1 + startingBalance / (startingBalance - endingBalance);
+    if (discountedYearlyFreeCashFlow > 0 && cumulativeDiscountedCashFlow >= totalStudyCost) {
+      return year - 1 + (totalStudyCost - startingCumulative) / discountedYearlyFreeCashFlow;
     }
-
-    remainingCostBalance = endingBalance;
   }
 
   return null;
 }
 
-// Treat tuition and study-period living costs as money paid at the start of each study year.
-// Each payment is compounded at the model's 10% annual return rate to the graduation date.
-// During payback, that graduation-date cost balance keeps compounding until free cash flow clears it.
-function compoundAnnualStudyCostToGraduation(annualCost: number, studyYears: number) {
+function calculateRiskAdjustedPaybackPeriod(
+  assumptions: RoiAssumptions,
+  totalStudyCost: number
+) {
+  if (totalStudyCost <= 0) {
+    return null;
+  }
+
+  const annualSalaryPremium =
+    Math.max(0, assumptions.startingSalary) -
+    Math.max(0, assumptions.fallbackIncomeIfNotEmployed);
+  const employmentProbability = clamp(assumptions.employmentProbability, 0, 1);
+  const riskAdjustedAnnualPremium = annualSalaryPremium * employmentProbability;
+
+  if (riskAdjustedAnnualPremium <= 0) {
+    return null;
+  }
+
+  return totalStudyCost / riskAdjustedAnnualPremium;
+}
+
+function calculateDiscountedEscalatingCost(
+  annualCost: number,
+  studyYears: number,
+  escalationRate: number
+) {
   const positiveAnnualCost = Math.max(0, annualCost);
   const positiveStudyYears = Math.max(0, studyYears);
   const fullYears = Math.floor(positiveStudyYears);
   const partialYear = positiveStudyYears - fullYears;
   let total = 0;
 
-  for (let yearIndex = 0; yearIndex < fullYears; yearIndex += 1) {
-    total += positiveAnnualCost * Math.pow(1 + ROI_INVESTMENT_RETURN_RATE, positiveStudyYears - yearIndex);
+  for (let year = 1; year <= fullYears; year += 1) {
+    total +=
+      positiveAnnualCost *
+      Math.pow(1 + escalationRate, year - 1) *
+      discountFactor(year);
   }
 
   if (partialYear > 0) {
+    const nextYear = fullYears + 1;
     total +=
       positiveAnnualCost *
+      Math.pow(1 + escalationRate, nextYear - 1) *
       partialYear *
-      Math.pow(1 + ROI_INVESTMENT_RETURN_RATE, partialYear);
+      discountFactor(nextYear);
   }
 
   return total;
+}
+
+function calculateSalaryPremiumNpv(assumptions: RoiAssumptions) {
+  const employmentProbability = clamp(assumptions.employmentProbability, 0, 1);
+  const baselineSalary = Math.max(0, assumptions.fallbackIncomeIfNotEmployed);
+  let total = 0;
+
+  for (let year = 1; year <= ROI_CONFIG.workingLifeYears; year += 1) {
+    const salaryPremium =
+      salaryForCareerYear(assumptions, year) * employmentProbability - baselineSalary;
+    total += salaryPremium * discountFactor(year);
+  }
+
+  return total;
+}
+
+function discountFactor(year: number) {
+  return 1 / Math.pow(1 + ROI_CONFIG.opportunityCostRate, Math.max(0, year));
 }
 
 function valueOrZero(value: SourcedNumber) {

@@ -1,4 +1,5 @@
 import { majors, type Major, type SourceMetadata } from "@/data/majors";
+import { ROI_CONFIG } from "@/lib/roiConfig";
 import {
   type PathwayFinancialProfile,
   type ScenarioAdjustment,
@@ -25,7 +26,7 @@ const miningEngineeringSalarySource: SourceMeta = {
   lastUpdated: checkedDate,
   scope: "Mining Engineering graduate earnings, Year 1 and Year 5 median salaries",
   note:
-    "Reports Mining Engineering median salary of AUD 113,380 in Year 1 and AUD 152,000 in Year 5, citing Jobs and Skills Australia higher education outcomes data. The ROI model uses the Year 1 median as the starting salary default, not the fifth-year salary. Jobs and Skills Australia Mining Engineers occupation profile also reports AUD 3,518/week median full-time earnings: https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations/2336-mining-engineers."
+    "Reports Mining Engineering median salary of AUD 113,380 in Year 1 and AUD 152,000 in Year 5, citing Jobs and Skills Australia higher education outcomes data. The payback model uses the Year 1 median as the starting salary default, not the fifth-year salary. Jobs and Skills Australia Mining Engineers occupation profile also reports AUD 3,518/week median full-time earnings: https://www.jobsandskills.gov.au/data/occupation-and-industry-profiles/occupations/2336-mining-engineers."
 };
 
 type SalaryReference = {
@@ -500,9 +501,9 @@ export const roiProfiles: PathwayFinancialProfile[] = majors.map((major) => {
     trainingNote: defaults.trainingNote,
     tuitionPerYear: defaults.tuitionPerYear,
     livingCostPerYearWhileStudying: assumptionNumber(
-      45_000,
+      ROI_CONFIG.defaultLivingCost,
       "AUD/year",
-      "Sydney living-cost model assumption. Actual living costs vary by housing, lifestyle, location, and personal circumstances."
+      "Typical student lifestyle assumption for shared housing and self-catering. Users can switch to visa minimum or comfortable tiers."
     ),
     otherStudyCosts: assumptionNumber(
       0,
@@ -519,9 +520,9 @@ export const roiProfiles: PathwayFinancialProfile[] = majors.map((major) => {
     occupationMedianSalary: occupationMedianSalaryForMajor(major),
     employmentProbability: employmentDefaultForMajor(major),
     annualLivingCostAfterGraduation: assumptionNumber(
-      45_000,
+      ROI_CONFIG.defaultLivingCost,
       "AUD/year",
-      "Sydney living-cost model assumption. Actual living costs vary by housing, lifestyle, location, and personal circumstances."
+      "Typical annual living-cost assumption. Actual costs vary by housing, lifestyle, location, and personal circumstances."
     ),
     fallbackIncomeIfNotEmployed: assumptionNumber(
       0,

@@ -955,10 +955,10 @@ export const majors: Major[] = [
     graduateSources: [sources.qilt],
     occupations: ["General practitioner", "Resident medical officer", "Specialist physician pathway"],
     workStyle: "Highly responsible clinical work involving patient assessment, diagnosis, treatment planning, documentation, communication, and multidisciplinary teamwork.",
-    workingHours: "Jobs and Skills Australia occupation data supplied for this project reports median full-time earnings of $2,446/week for General Practitioners and Resident Medical Officers; Specialist Physicians are used as a later-career proxy in ROI.",
+    workingHours: "Jobs and Skills Australia occupation data supplied for this project reports median full-time earnings of $2,446/week for General Practitioners and Resident Medical Officers; Specialist Physicians are used as a later-career proxy in the payback model.",
     jobEnvironment: "Hospitals, clinics, emergency departments, general practice, regional health services, specialist settings, and public or private health systems.",
     typicalTasks: "Taking histories, examining patients, ordering tests, interpreting results, prescribing treatment, documenting care, and coordinating with health teams.",
-    tradeOffs: "Very strong employment pathway, but long training time, high entry difficulty, registration requirements and delayed earnings make ROI more complex than the salary alone suggests.",
+    tradeOffs: "Very strong employment pathway, but long training time, high entry difficulty, registration requirements and delayed earnings make payback more complex than the salary alone suggests.",
     riskNotes: "Entry is highly competitive and the path includes long study, placement, internship, registration, exams, stress, and delayed full earnings.",
     occupationSources: [sources.jsaDoctors],
     scoringProfile: {
@@ -967,7 +967,7 @@ export const majors: Major[] = [
       flexibilityLevel: 4, peopleFacingLevel: 5, technicalLevel: 5,
       interestFit: { maths: 3, physics: 2, chemistry: 5, coding: 1, business: 1 }
     },
-    overallNotes: "Very strong employment pathway, but long training time, high entry difficulty, registration requirements and delayed earnings make ROI more complex than the salary alone suggests."
+    overallNotes: "Very strong employment pathway, but long training time, high entry difficulty, registration requirements and delayed earnings make payback more complex than the salary alone suggests."
   }),
   makeMajor({
     id: "dentistry",
@@ -1010,7 +1010,7 @@ export const majors: Major[] = [
     workingHours: "Jobs and Skills Australia occupation data supplied for this project reports median full-time earnings of $1,956/week for Pharmacists.",
     jobEnvironment: "Community pharmacies, hospitals, aged care, pharmaceutical companies, regulatory settings, and clinical health teams.",
     typicalTasks: "Reviewing prescriptions, advising patients, checking medication safety, managing dispensing systems, and supporting clinical medication decisions.",
-    tradeOffs: "High employment rate but weaker graduate salary than many students expect; ROI depends on whether the pathway leads to hospital, industrial, ownership or advanced clinical roles.",
+    tradeOffs: "High employment rate but weaker graduate salary than many students expect; payback depends on whether the pathway leads to hospital, industrial, ownership or advanced clinical roles.",
     riskNotes: "Registration, internship, weekend work, retail exposure, and ownership or hospital pathway competition can affect outcomes.",
     occupationSources: [sources.jsaPharmacists],
     scoringProfile: {
@@ -1019,7 +1019,7 @@ export const majors: Major[] = [
       flexibilityLevel: 3, peopleFacingLevel: 5, technicalLevel: 4,
       interestFit: { maths: 2, physics: 1, chemistry: 5, coding: 1, business: 2 }
     },
-    overallNotes: "High employment rate but weaker graduate salary than many students expect; ROI depends on whether the pathway leads to hospital, industrial, ownership or advanced clinical roles."
+    overallNotes: "High employment rate but weaker graduate salary than many students expect; payback depends on whether the pathway leads to hospital, industrial, ownership or advanced clinical roles."
   }),
   makeMajor({
     id: "physiotherapy",

@@ -3,6 +3,7 @@
 import { formatCurrency, formatPayback } from "@/lib/roi";
 import { useI18n } from "@/lib/i18n";
 import { type ScenarioResult } from "@/types/roi";
+import { type ReactNode } from "react";
 
 type ScenarioComparisonTableProps = {
   scenarios: ScenarioResult[];
@@ -10,14 +11,14 @@ type ScenarioComparisonTableProps = {
 
 const rows: {
   label: string;
-  getValue: (scenario: ScenarioResult, tx: (text: string) => string) => string;
+  getValue: (scenario: ScenarioResult, tx: (text: string) => string) => ReactNode;
 }[] = [
   {
     label: "Gross salary used",
     getValue: (scenario: ScenarioResult) => formatCurrency(scenario.assumptions.startingSalary)
   },
   {
-    label: "Total study cost",
+    label: "Total cost NPV",
     getValue: (scenario: ScenarioResult) => formatCurrency(scenario.calculation.totalStudyCost)
   },
   {
@@ -29,17 +30,18 @@ const rows: {
     getValue: (scenario: ScenarioResult) => formatCurrency(scenario.calculation.annualFreeCashFlow)
   },
   {
-    label: "Payback period",
-    getValue: (scenario: ScenarioResult, tx: (text: string) => string) =>
-      tx(formatPayback(scenario.calculation.paybackPeriodYears, "Not recovered under current assumptions."))
-  },
-  {
     label: "Risk-adjusted payback",
     getValue: (scenario: ScenarioResult, tx: (text: string) => string) =>
       tx(formatPayback(
         scenario.calculation.riskAdjustedPaybackPeriodYears,
         "Not recovered after risk adjustment."
       ))
+  },
+  {
+    label: "QILT full-time employment rate",
+    getValue: (scenario: ScenarioResult) => (
+      <EmploymentRateValue value={scenario.assumptions.employmentProbability} />
+    )
   },
   {
     label: "5-year cumulative free cash flow",
@@ -58,7 +60,7 @@ export function ScenarioComparisonTable({ scenarios }: ScenarioComparisonTablePr
     <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-soft">
       <h2 className="text-lg font-semibold text-ink">{tx("Scenario comparison")}</h2>
       <p className="mt-2 text-sm leading-6 text-stone-700">
-        {tx("Each scenario starts from the graduate salary input and rises linearly to the mapped occupation median salary by year 5. During payback, the study-cost balance keeps compounding at 10% until free cash flow clears it. These are sensitivity tests, not forecasts.")}
+        {tx("Each scenario uses the configured NPV model: 7% real opportunity cost, 5% tuition escalation, 3.5% living-cost escalation, and 30 years of salary benefit. These are sensitivity tests, not forecasts.")}
       </p>
 
       <div className="mt-5 grid gap-4 lg:hidden">
@@ -104,5 +106,31 @@ export function ScenarioComparisonTable({ scenarios }: ScenarioComparisonTablePr
         </table>
       </div>
     </div>
+  );
+}
+
+function EmploymentRateValue({ value }: { value: number }) {
+  const boundedValue = Math.min(1, Math.max(0, value));
+  const isLow = boundedValue < 0.6;
+  const isMedium = boundedValue >= 0.6 && boundedValue < 0.8;
+  const showWarning = isLow || isMedium;
+  const classes = isLow
+    ? "text-red-700"
+    : isMedium
+      ? "text-amber-700"
+      : "text-leaf";
+
+  return (
+    <span
+      className={`font-semibold ${classes}`}
+      title={
+        isLow
+          ? "Less than 60% of graduates secure full-time employment (QILT). This significantly extends the real payback period."
+          : undefined
+      }
+    >
+      {showWarning ? "⚠️ " : ""}
+      {Math.round(boundedValue * 1000) / 10}%
+    </span>
   );
 }

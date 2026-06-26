@@ -8,8 +8,7 @@ import {
   calculateRoi,
   formatCurrency,
   formatPayback,
-  formatPercent,
-  ROI_INVESTMENT_RETURN_RATE
+  formatPercent
 } from "@/lib/roi";
 
 export function RoiScoreSummary({ pathwayId }: { pathwayId: string }) {
@@ -33,7 +32,7 @@ export function RoiScoreSummary({ pathwayId }: { pathwayId: string }) {
   return (
     <div className="rounded-md border border-leaf/25 bg-leaf/10 p-3 sm:p-4">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs font-semibold uppercase text-leaf">{tx("Default ROI snapshot")}</p>
+        <p className="text-xs font-semibold uppercase text-leaf">{tx("Default financial snapshot")}</p>
         <p className="text-xs leading-5 text-stone-600">
           {tx(profile.startingSalary.dataLabel ?? "No source attached")}
         </p>
@@ -42,12 +41,12 @@ export function RoiScoreSummary({ pathwayId }: { pathwayId: string }) {
         <Metric
           label="Total tuition"
           value={hasTuition ? formatCurrency(calculation.tuitionCost) : tx("Tuition assumption needed")}
-          note="Tuition compounded to the graduation-date starting balance at the 10% annual model rate."
+          note="Present value after 5% annual tuition escalation and 7% real discounting."
         />
         <Metric
-          label="Total study cost"
+          label="Total cost NPV"
           value={hasTuition ? formatCurrency(calculation.totalStudyCost) : tx("Tuition assumption needed")}
-          note="Graduation-date starting balance. During payback, this balance keeps compounding at 10% until recovered."
+          note="Present value of tuition and study-period living costs."
         />
         <Metric
           label="After-tax income"
@@ -58,11 +57,7 @@ export function RoiScoreSummary({ pathwayId }: { pathwayId: string }) {
           value={hasSalary ? formatCurrency(calculation.annualFreeCashFlow) : tx("Salary assumption needed")}
           note="Uses AUD 45,000 per year as a conservative Sydney living-cost model assumption."
         />
-        <Metric
-          label="Risk-adjusted payback"
-          value={payback}
-          note={`The study-cost balance keeps growing at ${formatPercent(ROI_INVESTMENT_RETURN_RATE)} until free cash flow clears it.`}
-        />
+        <Metric label="Risk-adjusted payback" value={payback} />
         <Metric
           label="Graduate salary"
           value={
@@ -71,21 +66,48 @@ export function RoiScoreSummary({ pathwayId }: { pathwayId: string }) {
               : tx("Salary assumption needed")
           }
         />
-        <Metric
-          label="Employment rate"
-          value={
-            profile.employmentProbability.value !== null
-              ? formatPercent(profile.employmentProbability.value)
-              : tx("Employment assumption needed")
-          }
-        />
+        <EmploymentRateMetric value={profile.employmentProbability.value} />
       </div>
       <Link
         href={`/roi?pathway=${pathwayId}`}
         className="mt-2 inline-block text-xs font-semibold text-leaf underline underline-offset-2"
       >
-        {tx("Edit assumptions in ROI calculator")}
+        {tx("Edit assumptions in payback calculator")}
       </Link>
+    </div>
+  );
+}
+
+function EmploymentRateMetric({ value }: { value: number | null }) {
+  const { tx } = useI18n();
+
+  if (value === null) {
+    return <Metric label="QILT full-time employment rate" value={tx("Employment assumption needed")} />;
+  }
+
+  const isLow = value < 0.6;
+  const isMedium = value >= 0.6 && value < 0.8;
+  const showWarning = isLow || isMedium;
+  const classes = isLow
+    ? "border border-red-300 bg-red-50 text-red-700"
+    : isMedium
+      ? "border border-amber-300 bg-amber-50 text-amber-700"
+      : "border border-leaf/30 bg-leaf/10 text-leaf";
+
+  return (
+    <div
+      className={`min-w-0 rounded p-2 ${classes}`}
+      title={
+        isLow
+          ? tx("Less than 60% of graduates secure full-time employment (QILT). This significantly extends the real payback period.")
+          : undefined
+      }
+    >
+      <p className="text-[11px] font-semibold leading-4">{tx("QILT full-time employment rate")}</p>
+      <p className="mt-1 break-words text-sm font-bold leading-5">
+        {showWarning ? "⚠️ " : ""}
+        {formatPercent(value)}
+      </p>
     </div>
   );
 }

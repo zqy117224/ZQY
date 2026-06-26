@@ -8,7 +8,8 @@ const navItems = [
   { href: "/", label: "Home" },
   { href: "/questionnaire", label: "Start" },
   { href: "/comparison", label: "Compare" },
-  { href: "/roi", label: "ROI Calculator" },
+  { href: "/roi", label: "Payback Calculator" },
+  { href: "/methodology", label: "Methodology" },
   { href: "/consultation", label: "Consultation" }
 ];
 

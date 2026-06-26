@@ -45,12 +45,18 @@ describe("salaryForCareerYear", () => {
 });
 
 describe("calculateRoi", () => {
-  it("compounds tuition and living costs to graduation and excludes opportunity cost", () => {
+  it("discounts escalating tuition and living costs and excludes opportunity cost", () => {
     const result = calculateRoi(baseAssumptions());
-    expect(result.tuitionCost).toBeCloseTo(36_410, 5);
-    expect(result.livingCostWhileStudying).toBeCloseTo(18_205, 5);
+    expect(result.tuitionCost).toBeCloseTo(27_516.5851321137, 5);
+    expect(result.livingCostWhileStudying).toBeCloseTo(13_565.1360809376, 5);
     expect(result.opportunityCost).toBe(0);
-    expect(result.totalStudyCost).toBeCloseTo(54_615, 5);
+    expect(result.totalStudyCost).toBeCloseTo(41_081.7212130513, 5);
+  });
+
+  it("keeps the internal long-run salary calculation stable", () => {
+    const result = calculateRoi(baseAssumptions());
+    expect(result.salaryNpv).toBeCloseTo(744_542.471010351, 5);
+    expect(result.roiPercent).toBeCloseTo(1712.34487997503, 5);
   });
 
   it("computes free cash flow as after-tax income minus post-graduation living and other costs", () => {
@@ -69,17 +75,17 @@ describe("calculateRoi", () => {
     expect(result.riskAdjustedExpectedFreeCashFlow).toBeCloseTo(0.5 * 40_000 + 0.5 * -10_000, 5);
   });
 
-  it("finds the payback period once cumulative free cash flow exceeds total study cost", () => {
+  it("uses total cost divided by salary difference and employment rate for risk-adjusted payback", () => {
     const result = calculateRoi(baseAssumptions());
-    // The remaining study-cost balance keeps compounding at 10% until free cash flow clears it.
-    expect(result.paybackPeriodYears).toBeCloseTo(1.5284353297, 5);
+    expect(result.paybackPeriodYears).toBeNull();
+    expect(result.riskAdjustedPaybackPeriodYears).toBeCloseTo(41_081.7212130513 / 60_000, 5);
   });
 
-  it("returns null payback when free cash flow never recovers the study cost", () => {
+  it("returns null risk-adjusted payback when there is no positive salary difference", () => {
     const result = calculateRoi(
       baseAssumptions({ startingSalary: 0, occupationMedianSalary: 0, annualLivingCostAfterGraduation: 1_000 })
     );
-    expect(result.paybackPeriodYears).toBeNull();
+    expect(result.riskAdjustedPaybackPeriodYears).toBeNull();
   });
 
   it("returns null payback when there is no study cost to recover", () => {
@@ -87,10 +93,10 @@ describe("calculateRoi", () => {
     expect(result.paybackPeriodYears).toBeNull();
   });
 
-  it("compounds saved career-year free cash flow into the cumulative totals", () => {
+  it("discounts career-year free cash flow into the cumulative totals", () => {
     const result = calculateRoi(baseAssumptions());
-    expect(result.cumulativeFreeCashFlow5Years).toBeCloseTo(244_204, 5);
-    expect(result.cumulativeFreeCashFlow10Years).toBeCloseTo(637_496.98404, 5);
+    expect(result.cumulativeFreeCashFlow5Years).toBeCloseTo(164_007.897437904, 5);
+    expect(result.cumulativeFreeCashFlow10Years).toBeCloseTo(280_943.261637304, 5);
   });
 
   it("treats negative inputs as zero rather than reducing the total", () => {

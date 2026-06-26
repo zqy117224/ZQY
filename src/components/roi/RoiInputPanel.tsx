@@ -1,6 +1,8 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { dataLabelClasses, getInputMeta, qualityClasses, qualityLabels } from "@/lib/roi";
+import { ROI_CONFIG } from "@/lib/roiConfig";
 import { useI18n } from "@/lib/i18n";
 import { type PathwayFinancialProfile, type RoiAssumptions, type RoiInputKey } from "@/types/roi";
 
@@ -91,7 +93,12 @@ export function RoiInputPanel({
         assumptions={assumptions}
         profile={profile}
         onNumberChange={onNumberChange}
-      />
+      >
+        <LivingCostTierSelector
+          value={assumptions.livingCostPerYearWhileStudying}
+          onChange={(value) => onNumberChange("livingCostPerYearWhileStudying", value)}
+        />
+      </InputSection>
 
       <InputSection
         title="Income and employment inputs"
@@ -151,19 +158,22 @@ function InputSection({
   fields,
   assumptions,
   profile,
-  onNumberChange
+  onNumberChange,
+  children
 }: {
   title: string;
   fields: FieldConfig[];
   assumptions: RoiAssumptions;
   profile: PathwayFinancialProfile;
   onNumberChange: (key: RoiInputKey, value: number) => void;
+  children?: ReactNode;
 }) {
   const { tx } = useI18n();
 
   return (
     <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-soft">
       <h2 className="text-lg font-semibold text-ink">{tx(title)}</h2>
+      {children}
       <div className="mt-5 grid gap-4">
         {fields.map((field) => (
           <InputRow
@@ -174,6 +184,48 @@ function InputSection({
             onNumberChange={onNumberChange}
           />
         ))}
+      </div>
+    </div>
+  );
+}
+
+function LivingCostTierSelector({
+  value,
+  onChange
+}: {
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  const { tx } = useI18n();
+
+  return (
+    <div className="mt-4 rounded-lg border border-leaf/20 bg-leaf/10 p-4">
+      <p className="text-sm font-semibold text-ink">{tx("Living cost tier")}</p>
+      <p className="mt-1 text-sm leading-6 text-stone-700">
+        {tx("Choose a quick living-cost assumption. You can still edit the amount manually below.")}
+      </p>
+      <div className="mt-3 grid gap-2">
+        {ROI_CONFIG.livingCostTiers.map((tier) => {
+          const selected = Math.round(value) === tier.value;
+
+          return (
+            <button
+              key={tier.value}
+              type="button"
+              onClick={() => onChange(tier.value)}
+              className={
+                selected
+                  ? "rounded-md border border-leaf bg-leaf px-3 py-2 text-left text-sm font-semibold text-white"
+                  : "rounded-md border border-stone-300 bg-white px-3 py-2 text-left text-sm font-semibold text-ink transition hover:border-leaf hover:text-leaf"
+              }
+            >
+              <span className="block">{tx(tier.label)}</span>
+              <span className={selected ? "text-xs text-white/85" : "text-xs text-stone-600"}>
+                A${tier.value.toLocaleString("en-AU")} / {tx("year")}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

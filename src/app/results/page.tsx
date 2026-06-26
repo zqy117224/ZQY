@@ -66,7 +66,7 @@ export default function ResultsPage({ searchParams }: { searchParams: SearchPara
             href={`/roi?pathway=${recommendations[0]?.major.id ?? "computer-science"}`}
             className="rounded-md bg-coral px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-coral/90"
           >
-            {tx("Open ROI calculator")}
+            {tx("Open payback calculator")}
           </Link>
         </div>
       </div>
@@ -242,7 +242,7 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
       <div className="hidden">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-ink">{tx("Default ROI snapshot")}</h3>
+            <h3 className="text-sm font-semibold text-ink">{tx("Default financial snapshot")}</h3>
             <p className="mt-1 text-sm leading-6 text-stone-700">
               {tx("Uses the calculator's current source-backed and editable default inputs. Treat this as a rough planning signal.")}
             </p>
@@ -251,7 +251,7 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
             href={`/roi?pathway=${major.id}`}
             className="w-fit rounded-md bg-coral px-4 py-3 text-sm font-semibold text-white transition hover:bg-coral/90"
           >
-            {tx("Open advanced ROI calculator")}
+            {tx("Open advanced payback calculator")}
           </Link>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -300,7 +300,7 @@ function DecisionPathwayCard({ recommendation }: { recommendation: Recommendatio
             value={hasSalaryDefault ? formatCurrency(roiCalculation.annualFreeCashFlow) : tx("Salary assumption needed")}
           />
           <RoiMiniMetric
-            label="ROI status"
+            label="Payback status"
             value={
               !hasTuitionDefault
                 ? tx("Payback unavailable — tuition assumption needed.")
