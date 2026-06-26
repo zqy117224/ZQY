@@ -4,13 +4,15 @@ export const ROI_CONFIG = {
   // real Australian graduate wage growth is approximately 0%.
   opportunityCostRate: 0.07,
 
-  // Studymove (2025): Australian international student fees rose 5.2% in
-  // 2024-25, with the 2018-2025 sector average around 5.1% per year.
-  tuitionEscalationRate: 0.05,
+  // Conservative real (inflation-adjusted) tuition escalation assumption.
+  // For context, Studymove (2025) reported nominal Australian international
+  // student fees rising ~5.2% in 2024-25 (2018-2025 sector average ~5.1%/yr).
+  tuitionEscalationRate: 0.02,
 
-  // Reflects sustained Australian CPI around 2.5-3% plus a Melbourne rental
-  // market premium, including ABS September 2025 rent inflation around 3.7%.
-  livingCostEscalationRate: 0.035,
+  // Conservative real (inflation-adjusted) living-cost escalation assumption.
+  // For context, nominal Australian CPI has run ~2.5-3% with ABS September
+  // 2025 rent inflation around 3.7%.
+  livingCostEscalationRate: 0.005,
 
   defaultLivingCost: 40_000,
   livingCostTiers: [

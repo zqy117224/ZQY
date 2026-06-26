@@ -47,10 +47,10 @@ describe("salaryForCareerYear", () => {
 describe("calculateRoi", () => {
   it("compounds escalating tuition and living costs to graduation and excludes opportunity cost", () => {
     const result = calculateRoi(baseAssumptions());
-    expect(result.tuitionCost).toBeCloseTo(36_068.63, 5);
-    expect(result.livingCostWhileStudying).toBeCloseTo(17_781.12625, 5);
+    expect(result.tuitionCost).toBeCloseTo(35_060.69, 5);
+    expect(result.livingCostWhileStudying).toBeCloseTo(17_281.97125, 5);
     expect(result.opportunityCost).toBe(0);
-    expect(result.totalStudyCost).toBeCloseTo(53_849.75625, 5);
+    expect(result.totalStudyCost).toBeCloseTo(52_342.66125, 5);
   });
 
   it("computes free cash flow as after-tax income minus post-graduation living and other costs", () => {
@@ -71,7 +71,7 @@ describe("calculateRoi", () => {
 
   it("uses a compounding cost balance reduced by risk-adjusted free cash flow for payback", () => {
     const result = calculateRoi(baseAssumptions());
-    expect(result.riskAdjustedPaybackPeriodYears).toBeCloseTo(1.4713146482656252, 5);
+    expect(result.riskAdjustedPaybackPeriodYears).toBeCloseTo(1.4281778216281253, 5);
   });
 
   it("lengthens risk-adjusted payback when employment probability falls", () => {
