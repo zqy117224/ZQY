@@ -13,7 +13,6 @@ export const ROI_CONFIG = {
   livingCostEscalationRate: 0.035,
 
   defaultLivingCost: 40_000,
-  workingLifeYears: 30,
   livingCostTiers: [
     {
       label: "Visa minimum (unrealistic for most students)",

@@ -48,7 +48,6 @@ export default function MethodologyPage() {
         <MethodMetric label="Opportunity cost rate" value={formatPercent(ROI_CONFIG.opportunityCostRate)} />
         <MethodMetric label="Tuition escalation" value={formatPercent(ROI_CONFIG.tuitionEscalationRate)} />
         <MethodMetric label="Living cost escalation" value={formatPercent(ROI_CONFIG.livingCostEscalationRate)} />
-        <MethodMetric label="Working life modelled" value={`${ROI_CONFIG.workingLifeYears} ${tx("years")}`} />
       </div>
 
       <div className="mt-8 space-y-5">
