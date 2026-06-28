@@ -14,7 +14,7 @@ const sections = [
   {
     title: "Tuition Fee Escalation",
     body:
-      "International student tuition fees at Australian universities have risen at an average of ~5.1% per annum between 2018 and 2025 (Studymove, 2025), representing a real escalation of approximately 2% above CPI. This model applies 5% annual tuition escalation for the full duration of the degree."
+      "International student tuition fees at Australian universities rose by about 5.1% per year in nominal terms between 2018 and 2025 (Studymove, 2025). Because this is a real model, it uses 2% annual tuition escalation above inflation for the full duration of the degree."
   },
   {
     title: "Living Costs",
@@ -24,12 +24,12 @@ const sections = [
   {
     title: "Salary Data",
     body:
-      "Graduate salary figures are sourced from QILT (Quality Indicators for Learning and Teaching) median salary data. Occupational salary benchmarks are drawn from JSA (Jobs and Skills Australia) occupational median earnings. Employment probability is adjusted using QILT full-time employment rates by field of study."
+      "Graduate salary figures are sourced from QILT median salary data. Occupational salary benchmarks are drawn from JSA occupation median earnings. Employment probability uses QILT full-time employment rates by field of study. The time taken to move from graduate salary to the occupation median is a user-editable modelling assumption, not a sourced forecast; the default is 10 years."
   },
   {
     title: "Limitations",
     body:
-      "1. This model assumes zero real wage growth for graduates, consistent with recent Australian labour market conditions. If real wage growth resumes, payback outputs will improve. 2. Exchange rate risk (AUD/CNY) is not modeled. 3. Non-financial returns (network, immigration pathways, credential signalling) are excluded by design. 4. All figures are in real (inflation-adjusted) AUD unless otherwise stated."
+      "1. This model assumes zero real wage growth after reaching the occupation median. 2. Exchange rate risk (AUD/CNY) is not modelled. 3. Migration pathways, professional networks, credential signalling, and personal value are not assigned a monetary value. 4. Modelled cash flows use real (inflation-adjusted) rates; source values retain their stated source-year scope."
   }
 ];
 
@@ -43,6 +43,13 @@ export default function MethodologyPage() {
         title="How the payback model works"
         description="The calculator is a planning model, not financial advice. These assumptions make the comparison explicit so families can edit inputs instead of treating outputs as predictions."
       />
+
+      <div className="mt-6 rounded-lg border border-coral/30 bg-coral/10 p-5 text-sm leading-7 text-stone-700">
+        <p className="font-semibold text-ink">{tx("Financial scope only")}</p>
+        <p className="mt-1">
+          {tx("This model does not place a monetary value on migration pathways, professional networks, credential signalling, or personal value. Treat the result as a financial-only estimate, not the complete value of studying in Australia.")}
+        </p>
+      </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MethodMetric label="Opportunity cost rate" value={formatPercent(ROI_CONFIG.opportunityCostRate)} />

@@ -44,12 +44,12 @@ const rows: {
     )
   },
   {
-    label: "5-year cumulative free cash flow",
-    getValue: (scenario: ScenarioResult) => formatCurrency(scenario.calculation.cumulativeFreeCashFlow5Years)
+    label: "5-year risk-adjusted cumulative free cash flow",
+    getValue: (scenario: ScenarioResult) => formatCurrency(scenario.calculation.riskAdjustedCumulativeFreeCashFlow5Years)
   },
   {
-    label: "10-year cumulative free cash flow",
-    getValue: (scenario: ScenarioResult) => formatCurrency(scenario.calculation.cumulativeFreeCashFlow10Years)
+    label: "10-year risk-adjusted cumulative free cash flow",
+    getValue: (scenario: ScenarioResult) => formatCurrency(scenario.calculation.riskAdjustedCumulativeFreeCashFlow10Years)
   }
 ];
 
@@ -60,7 +60,7 @@ export function ScenarioComparisonTable({ scenarios }: ScenarioComparisonTablePr
     <div className="rounded-lg border border-stone-200 bg-white p-5 shadow-soft">
       <h2 className="text-lg font-semibold text-ink">{tx("Scenario comparison")}</h2>
       <p className="mt-2 text-sm leading-6 text-stone-700">
-        {tx("Each scenario compounds study costs and saved free cash flow at the model return rate. These are sensitivity tests, not forecasts.")}
+        {tx("Each scenario uses the same employment-probability adjustment for payback and cumulative free cash flow. Saved cash flow compounds at the model return rate. These are sensitivity tests, not forecasts.")}
       </p>
 
       <div className="mt-5 grid gap-4 lg:hidden">

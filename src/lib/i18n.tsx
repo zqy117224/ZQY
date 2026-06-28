@@ -22,6 +22,19 @@ const storageKey = "vce-pathway-language";
 const I18nContext = createContext<I18nContextValue | null>(null);
 
 const zhExact: Record<string, string> = {
+  "Financial scope only": "仅限财务口径",
+  "This model does not place a monetary value on migration pathways, professional networks, credential signalling, or personal value. Treat the result as a financial-only estimate, not the complete value of studying in Australia.": "本模型不会为移民路径、职业人脉、学历信号或个人价值估算金额。请把结果视为纯财务口径的估算，而不是赴澳留学全部价值的结论。",
+  "International student tuition fees at Australian universities rose by about 5.1% per year in nominal terms between 2018 and 2025 (Studymove, 2025). Because this is a real model, it uses 2% annual tuition escalation above inflation for the full duration of the degree.": "根据 Studymove 2025 的数据，2018 至 2025 年间，澳大利亚大学国际学生学费的名义涨幅约为每年 5.1%。由于本模型采用实际口径，整个学位期间使用高于通胀 2% 的年度学费实际上涨率。",
+  "Graduate salary figures are sourced from QILT median salary data. Occupational salary benchmarks are drawn from JSA occupation median earnings. Employment probability uses QILT full-time employment rates by field of study. The time taken to move from graduate salary to the occupation median is a user-editable modelling assumption, not a sourced forecast; the default is 10 years.": "毕业生薪资来自 QILT 中位薪资数据，职业薪资基准来自 JSA 职业中位收入，就业概率采用 QILT 按学习领域统计的全职就业率。从毕业生薪资增长到职业中位薪资所需的时间，是可由用户修改的模型假设，不是有来源支持的预测；默认值为 10 年。",
+  "1. This model assumes zero real wage growth after reaching the occupation median. 2. Exchange rate risk (AUD/CNY) is not modelled. 3. Migration pathways, professional networks, credential signalling, and personal value are not assigned a monetary value. 4. Modelled cash flows use real (inflation-adjusted) rates; source values retain their stated source-year scope.": "1. 达到职业中位薪资后，本模型假设实际工资增长为 0。2. 未建模 AUD/CNY 汇率风险。3. 移民路径、职业人脉、学历信号和个人价值均未折算为金额。4. 模型现金流采用实际（扣除通胀）口径；来源数据则保留其原始数据年份和适用范围。",
+  "Years to occupation median": "达到职业中位薪资所需年数",
+  "Editable modelling horizon from graduate salary to the JSA occupation median. This is an assumption, not a forecast.": "从毕业生薪资增长到 JSA 职业中位薪资所采用的可编辑年限。这是模型假设，不是预测。",
+  "Time from graduate starting salary to the mapped JSA occupation median. This is a modelling choice, not a forecast or sourced graduate outcome.": "从毕业生起薪增长到所映射 JSA 职业中位薪资的时间。这是模型选择，不是预测，也不是有来源支持的毕业生就业结果。",
+  "10-year risk-adjusted free cash flow": "10 年风险调整后自由现金流",
+  "Uses the same employment-probability adjustment as payback. Saved cash flow compounds at the model return rate, and the editable salary horizon controls progress toward the occupation median.": "采用与回本计算相同的就业概率调整。存下的现金流按模型收益率复利增长，薪资向职业中位数增长的速度由可编辑年限控制。",
+  "5-year risk-adjusted cumulative free cash flow": "5 年风险调整后累计自由现金流",
+  "10-year risk-adjusted cumulative free cash flow": "10 年风险调整后累计自由现金流",
+  "Each scenario uses the same employment-probability adjustment for payback and cumulative free cash flow. Saved cash flow compounds at the model return rate. These are sensitivity tests, not forecasts.": "每个情景的回本时间与累计自由现金流都采用相同的就业概率调整。存下的现金流按模型收益率复利增长。这些结果是敏感性测试，不是预测。",
   "Home": "首页",
   "Start": "开始",
   "Compare": "专业对比",

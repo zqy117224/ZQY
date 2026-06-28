@@ -467,6 +467,12 @@ export const simpleEffectiveTaxRateDefault: SourcedNumber = assumptionNumber(
   "Fallback tax setting for users who do not want to use resident or foreign resident bracket estimates."
 );
 
+export const yearsToOccupationMedianDefault: SourcedNumber = assumptionNumber(
+  10,
+  "years",
+  "Time from graduate starting salary to the mapped JSA occupation median. This is a modelling choice, not a forecast or sourced graduate outcome."
+);
+
 export const scenarioAdjustments: ScenarioAdjustment[] = [
   {
     name: "Conservative",

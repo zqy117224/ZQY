@@ -1,7 +1,8 @@
 import {
   otherAnnualCostsAfterGraduationDefault,
   scenarioAdjustments,
-  simpleEffectiveTaxRateDefault
+  simpleEffectiveTaxRateDefault,
+  yearsToOccupationMedianDefault
 } from "@/data/roiDefaults";
 import { ROI_CONFIG } from "@/lib/roiConfig";
 import { estimateIncomeTax } from "@/lib/tax";
@@ -45,6 +46,7 @@ export function buildInitialAssumptions(profile: PathwayFinancialProfile): RoiAs
     opportunityCostPerYear: valueOrZero(profile.opportunityCostPerYear),
     startingSalary: valueOrZero(profile.startingSalary),
     occupationMedianSalary: valueOrZero(profile.occupationMedianSalary),
+    yearsToOccupationMedian: valueOrZero(yearsToOccupationMedianDefault),
     employmentProbability: valueOrZero(profile.employmentProbability),
     annualLivingCostAfterGraduation: valueOrZero(profile.annualLivingCostAfterGraduation),
     otherAnnualCostsAfterGraduation: valueOrZero(otherAnnualCostsAfterGraduationDefault),
@@ -108,8 +110,8 @@ export function calculateRoi(assumptions: RoiAssumptions): RoiCalculation {
     annualFreeCashFlow,
     riskAdjustedExpectedFreeCashFlow,
     riskAdjustedPaybackPeriodYears,
-    cumulativeFreeCashFlow5Years: calculateCumulativeFreeCashFlow(assumptions, 5),
-    cumulativeFreeCashFlow10Years: calculateCumulativeFreeCashFlow(assumptions, 10)
+    riskAdjustedCumulativeFreeCashFlow5Years: calculateRiskAdjustedCumulativeFreeCashFlow(assumptions, 5),
+    riskAdjustedCumulativeFreeCashFlow10Years: calculateRiskAdjustedCumulativeFreeCashFlow(assumptions, 10)
   };
 }
 
@@ -158,6 +160,10 @@ export function getInputMeta(profile: PathwayFinancialProfile, key: RoiInputKey)
     return simpleEffectiveTaxRateDefault;
   }
 
+  if (key === "yearsToOccupationMedian") {
+    return yearsToOccupationMedianDefault;
+  }
+
   return profile[key];
 }
 
@@ -171,6 +177,7 @@ export function findAssumptionWarnings(profile: PathwayFinancialProfile) {
     "annualLivingCostAfterGraduation",
     "otherAnnualCostsAfterGraduation",
     "fallbackIncomeIfNotEmployed",
+    "yearsToOccupationMedian",
     "simpleEffectiveTaxRate"
   ];
 
@@ -203,32 +210,43 @@ export function formatPayback(value: number | null, notRecoveredText: string) {
   return `~${value.toFixed(1)} years`;
 }
 
-function calculateCumulativeFreeCashFlow(assumptions: RoiAssumptions, years: number) {
+function calculateRiskAdjustedCumulativeFreeCashFlow(assumptions: RoiAssumptions, years: number) {
   let total = 0;
   const annualOtherCosts = Math.max(0, assumptions.otherAnnualCostsAfterGraduation);
   const livingAfterGraduation = Math.max(0, assumptions.annualLivingCostAfterGraduation);
+  const employmentProbability = clamp(assumptions.employmentProbability, 0, 1);
+  const fallbackIncome = Math.max(0, assumptions.fallbackIncomeIfNotEmployed);
+  const fallbackTax = estimateIncomeTax(
+    fallbackIncome,
+    assumptions.taxResidency,
+    assumptions.simpleEffectiveTaxRate
+  );
+  const fallbackFreeCashFlow = fallbackIncome - fallbackTax - livingAfterGraduation - annualOtherCosts;
 
   for (let year = 1; year <= years; year += 1) {
     total *= 1 + ROI_CONFIG.opportunityCostRate;
     const grossIncome = salaryForCareerYear(assumptions, year);
     const incomeTax = estimateIncomeTax(grossIncome, assumptions.taxResidency, assumptions.simpleEffectiveTaxRate);
-    const freeCashFlow = grossIncome - incomeTax - livingAfterGraduation - annualOtherCosts;
-    total += freeCashFlow;
+    const employedFreeCashFlow = grossIncome - incomeTax - livingAfterGraduation - annualOtherCosts;
+    total +=
+      employmentProbability * employedFreeCashFlow +
+      (1 - employmentProbability) * fallbackFreeCashFlow;
   }
 
   return total;
 }
 
-// Year 1 uses graduate salary. Years 2-5 rise linearly, reaching the occupation median in year 5.
-// From year 5 onward, the model holds salary at the occupation median and assumes 0% real wage growth.
+// Year 1 uses graduate salary. The editable modelling horizon controls when salary reaches
+// the occupation median; this is a sensitivity assumption, not a sourced graduate forecast.
 export function salaryForCareerYear(assumptions: RoiAssumptions, careerYear: number) {
   const startingSalary = Math.max(0, assumptions.startingSalary);
   const occupationMedianSalary =
     assumptions.occupationMedianSalary > 0
       ? Math.max(0, assumptions.occupationMedianSalary)
       : startingSalary;
-  const boundedYear = Math.max(1, Math.min(5, careerYear));
-  const progressToMedian = (boundedYear - 1) / 4;
+  const yearsToMedian = Math.max(2, assumptions.yearsToOccupationMedian);
+  const boundedYear = Math.max(1, Math.min(yearsToMedian, careerYear));
+  const progressToMedian = (boundedYear - 1) / (yearsToMedian - 1);
 
   return startingSalary + (occupationMedianSalary - startingSalary) * progressToMedian;
 }

@@ -11,6 +11,7 @@ function baseAssumptions(overrides: Partial<RoiAssumptions> = {}): RoiAssumption
     opportunityCostPerYear: 2_000,
     startingSalary: 60_000,
     occupationMedianSalary: 60_000,
+    yearsToOccupationMedian: 10,
     employmentProbability: 1,
     annualLivingCostAfterGraduation: 20_000,
     otherAnnualCostsAfterGraduation: 0,
@@ -27,15 +28,24 @@ describe("salaryForCareerYear", () => {
     expect(salaryForCareerYear(assumptions, 1)).toBe(50_000);
   });
 
-  it("rises linearly toward the occupation median through year 5", () => {
+  it("rises linearly toward the occupation median through the editable horizon", () => {
     const assumptions = baseAssumptions({ startingSalary: 50_000, occupationMedianSalary: 90_000 });
-    expect(salaryForCareerYear(assumptions, 3)).toBeCloseTo(70_000, 5);
-    expect(salaryForCareerYear(assumptions, 5)).toBeCloseTo(90_000, 5);
+    expect(salaryForCareerYear(assumptions, 5)).toBeCloseTo(67_777.7778, 4);
+    expect(salaryForCareerYear(assumptions, 10)).toBeCloseTo(90_000, 5);
   });
 
-  it("holds flat at the occupation median after year 5", () => {
+  it("holds flat at the occupation median after the editable horizon", () => {
     const assumptions = baseAssumptions({ startingSalary: 50_000, occupationMedianSalary: 90_000 });
-    expect(salaryForCareerYear(assumptions, 10)).toBeCloseTo(90_000, 5);
+    expect(salaryForCareerYear(assumptions, 15)).toBeCloseTo(90_000, 5);
+  });
+
+  it("allows the salary transition horizon to be edited", () => {
+    const assumptions = baseAssumptions({
+      startingSalary: 50_000,
+      occupationMedianSalary: 90_000,
+      yearsToOccupationMedian: 5
+    });
+    expect(salaryForCareerYear(assumptions, 5)).toBeCloseTo(90_000, 5);
   });
 
   it("falls back to the starting salary when no occupation median is set", () => {
@@ -95,10 +105,17 @@ describe("calculateRoi", () => {
     expect(result.riskAdjustedPaybackPeriodYears).toBeNull();
   });
 
-  it("compounds saved career-year free cash flow into the cumulative totals", () => {
+  it("compounds risk-adjusted career-year free cash flow into the cumulative totals", () => {
     const result = calculateRoi(baseAssumptions());
-    expect(result.cumulativeFreeCashFlow5Years).toBeCloseTo(230_029.5604, 5);
-    expect(result.cumulativeFreeCashFlow10Years).toBeCloseTo(552_657.9184511803, 5);
+    expect(result.riskAdjustedCumulativeFreeCashFlow5Years).toBeCloseTo(230_029.5604, 5);
+    expect(result.riskAdjustedCumulativeFreeCashFlow10Years).toBeCloseTo(552_657.9184511803, 5);
+  });
+
+  it("uses employment probability in cumulative cash flow as well as payback", () => {
+    const result = calculateRoi(
+      baseAssumptions({ employmentProbability: 0.5, fallbackIncomeIfNotEmployed: 10_000 })
+    );
+    expect(result.riskAdjustedCumulativeFreeCashFlow5Years).toBeCloseTo(86_261.08515, 4);
   });
 
   it("treats negative inputs as zero rather than reducing the total", () => {

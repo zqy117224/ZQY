@@ -49,6 +49,12 @@ const incomeFields: FieldConfig[] = [
     inputMode: "money"
   },
   {
+    key: "yearsToOccupationMedian",
+    label: "Years to occupation median",
+    help: "Editable modelling horizon from graduate salary to the JSA occupation median. This is an assumption, not a forecast.",
+    inputMode: "decimal"
+  },
+  {
     key: "employmentProbability",
     label: "Employment probability",
     help: "Probability used in the risk-adjusted free cash flow model.",

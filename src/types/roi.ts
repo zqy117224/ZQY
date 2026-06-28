@@ -52,6 +52,7 @@ export type RoiAssumptions = {
   opportunityCostPerYear: number;
   startingSalary: number;
   occupationMedianSalary: number;
+  yearsToOccupationMedian: number;
   employmentProbability: number;
   annualLivingCostAfterGraduation: number;
   otherAnnualCostsAfterGraduation: number;
@@ -67,6 +68,7 @@ export type RoiInputKey =
   | "otherStudyCosts"
   | "opportunityCostPerYear"
   | "startingSalary"
+  | "yearsToOccupationMedian"
   | "employmentProbability"
   | "annualLivingCostAfterGraduation"
   | "otherAnnualCostsAfterGraduation"
@@ -85,8 +87,8 @@ export type RoiCalculation = {
   annualFreeCashFlow: number;
   riskAdjustedExpectedFreeCashFlow: number;
   riskAdjustedPaybackPeriodYears: number | null;
-  cumulativeFreeCashFlow5Years: number;
-  cumulativeFreeCashFlow10Years: number;
+  riskAdjustedCumulativeFreeCashFlow5Years: number;
+  riskAdjustedCumulativeFreeCashFlow10Years: number;
 };
 
 export type ScenarioName = "Conservative" | "Base" | "Optimistic";

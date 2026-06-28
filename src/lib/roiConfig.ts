@@ -1,7 +1,7 @@
 export const ROI_CONFIG = {
   // 7% real annualized S&P 500 return (1928-2024, with dividends reinvested).
-  // A real rate is used to match the nominal wage data framework where recent
-  // real Australian graduate wage growth is approximately 0%.
+  // Source-year salaries are held constant in real terms after the modelled
+  // transition to the occupation median.
   opportunityCostRate: 0.07,
 
   // Conservative real (inflation-adjusted) tuition escalation assumption.

@@ -83,6 +83,13 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
         </Link>
       </div>
 
+      <div className="mb-8 rounded-lg border border-coral/30 bg-coral/10 p-5 text-sm leading-7 text-stone-700">
+        <p className="font-semibold text-ink">{tx("Financial scope only")}</p>
+        <p className="mt-1">
+          {tx("This model does not place a monetary value on migration pathways, professional networks, credential signalling, or personal value. Treat the result as a financial-only estimate, not the complete value of studying in Australia.")}
+        </p>
+      </div>
+
       <div className="mb-8 rounded-lg border border-stone-200 bg-white p-5 shadow-soft">
         <label className="block">
           <span className="field-label">{tx("Pathway selector")}</span>
@@ -178,13 +185,13 @@ export default function RoiPage({ searchParams }: RoiPageProps) {
             />
             <EmploymentRatePanel value={assumptions.employmentProbability} />
             <RoiResultCard
-              title="10-year free cash flow"
+              title="10-year risk-adjusted free cash flow"
               value={
                 salaryAssumptionNeeded
                   ? tx("Salary assumption needed")
-                  : formatCurrency(calculation.cumulativeFreeCashFlow10Years)
+                  : formatCurrency(calculation.riskAdjustedCumulativeFreeCashFlow10Years)
               }
-              note="Cumulative employed free cash flow invested at the model return rate. Salary rises linearly to occupation median salary by year 5."
+              note="Uses the same employment-probability adjustment as payback. Saved cash flow compounds at the model return rate, and the editable salary horizon controls progress toward the occupation median."
               tone={salaryAssumptionNeeded ? "warning" : "default"}
             />
           </div>
